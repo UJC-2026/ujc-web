@@ -6,6 +6,7 @@ import { ThemeToggle } from "./theme-toggle";
 import { MobileNav } from "./mobile-nav";
 import { UserMenu } from "./user-menu";
 import { NotificationBell } from "./notification-bell";
+import { CommandPalette } from "@/components/search/command-palette";
 import { HeaderShell } from "./header-shell";
 import { NAV_LINKS } from "./nav-links";
 
@@ -35,6 +36,7 @@ export async function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
+          <CommandPalette />
           <ThemeToggle />
           {profile ? (
             <>
