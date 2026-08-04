@@ -662,6 +662,50 @@ values
   ('22222222-2222-2222-2222-222222222222', 'Osaka', 'Osaka', false)
 on conflict (user_id) do nothing;
 
+insert into workshops (id, title, description, type, speaker, scheduled_at, capacity, meeting_link, recording_url, created_by)
+values
+  ('d5000000-0000-0000-0000-000000000001', 'Persiapan JLPT N3 dalam 3 bulan',
+   'Strategi belajar untuk yang kerja penuh waktu, dibawakan alumni yang lulus N2 sambil kerja shift.',
+   'webinar', 'Dimas Prakoso', now() + interval '12 days', 100,
+   'https://meet.google.com/ujc-n3', null, '22222222-2222-2222-2222-222222222222'),
+  ('d5000000-0000-0000-0000-000000000002', 'Workshop menulis rirekisho',
+   'Praktik langsung menulis rirekisho dan shokumu keirekisho yang benar.',
+   'workshop', 'Rina Hartono', now() + interval '26 days', 25, null, null,
+   '11111111-1111-1111-1111-111111111111'),
+  ('d5000000-0000-0000-0000-000000000003', 'Seminar hak pekerja asing di Jepang',
+   'Apa yang wajib diberikan perusahaan, dan ke mana mengadu kalau dilanggar.',
+   'seminar', 'Narasumber tamu', now() - interval '20 days', null, null,
+   'https://example.com/rekaman-hak-pekerja', '11111111-1111-1111-1111-111111111111')
+on conflict (id) do nothing;
+
+-- Seeded with the verification guard disabled: it correctly refuses to let a
+-- member publish their own listing, and a seed run has no pengurus session.
+alter table businesses disable trigger businesses_guard_verification;
+
+insert into businesses (id, owner_id, name, category, description, contact, city, is_verified)
+values
+  ('d6000000-0000-0000-0000-000000000001', '44444444-4444-4444-4444-444444444444',
+   'Jastip Tokyo - Indonesia', 'Jasa titip',
+   'Titip barang dari Jepang ke Indonesia tiap bulan. Kosmetik, obat, camilan, elektronik kecil. Ongkir dihitung per kilo.',
+   'LINE: @jastiptokyo', 'Tokyo', true),
+  ('d6000000-0000-0000-0000-000000000002', '22222222-2222-2222-2222-222222222222',
+   'Terjemahan dokumen ID-JP', 'Terjemahan',
+   'Terjemahan dokumen resmi, surat lamaran, dan pendampingan rapat daring. Sudah biasa menangani dokumen imigrasi.',
+   'WA: 080-xxxx-xxxx', 'Osaka', true),
+  ('d6000000-0000-0000-0000-000000000003', '33333333-3333-3333-3333-333333333333',
+   'Katering rumahan Hamamatsu', 'Katering & makanan',
+   'Masakan Indonesia rumahan, halal, bisa diantar area Hamamatsu. Terima pesanan untuk acara kecil.',
+   'IG: @dapurhamamatsu', 'Hamamatsu', false)
+on conflict (id) do nothing;
+
+alter table businesses enable trigger businesses_guard_verification;
+
+insert into workshop_registrations (workshop_id, user_id)
+values
+  ('d5000000-0000-0000-0000-000000000001', '33333333-3333-3333-3333-333333333333'),
+  ('d5000000-0000-0000-0000-000000000001', '44444444-4444-4444-4444-444444444444')
+on conflict do nothing;
+
 -- Gives the seeded member a non-zero gamification score.
 insert into user_points (user_id, points, source)
 values

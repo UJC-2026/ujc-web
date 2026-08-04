@@ -9,6 +9,8 @@ const FOOTER_SECTIONS = [
       { href: "/forum", label: "Forum" },
       { href: "/members", label: "Direktori anggota" },
       { href: "/events", label: "Kegiatan" },
+      { href: "/gallery", label: "Galeri" },
+      { href: "/map", label: "Peta anggota" },
       { href: "/structure", label: "Struktur organisasi" },
     ],
   },
@@ -16,18 +18,30 @@ const FOOTER_SECTIONS = [
     title: "Belajar & Karier",
     links: [
       { href: "/cbt", label: "Latihan CBT" },
+      { href: "/workshops", label: "Workshop & webinar" },
       { href: "/mentorship", label: "Mentor Senpai-Kouhai" },
       { href: "/jobs", label: "Papan lowongan" },
       { href: "/resources", label: "Resource" },
     ],
   },
   {
+    title: "Ekonomi & Cerita",
+    links: [
+      { href: "/marketplace", label: "Marketplace" },
+      { href: "/business", label: "Bisnis anggota" },
+      { href: "/blog", label: "Blog komunitas" },
+      { href: "/peduli", label: "UJC Peduli" },
+    ],
+  },
+  {
     title: "Bantuan",
     links: [
+      { href: "/about", label: "Tentang UJC" },
       { href: "/help", label: "Cara pakai website" },
-      { href: "/peduli", label: "UJC Peduli" },
+      { href: "/search", label: "Pencarian" },
       { href: "/privacy", label: "Kebijakan privasi" },
       { href: "/terms", label: "Ketentuan layanan" },
+      { href: "/accessibility", label: "Aksesibilitas" },
     ],
   },
 ];
@@ -40,7 +54,7 @@ export function SiteFooter() {
       />
 
       <div className="mx-auto w-full max-w-6xl px-4 py-14">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
           <div>
             <Logo />
             <p className="mt-4 max-w-xs text-caption text-muted-foreground">
