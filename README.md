@@ -47,8 +47,9 @@ diekspos ke client.
 > `supabase db reset`, restart container `supabase_kong_*`: IP container auth
 > berubah dan Kong menyimpan yang lama.
 
-Untuk deploy, buat project di [supabase.com](https://supabase.com) lalu
-jalankan migrasi berurutan lewat SQL Editor atau `supabase db push`.
+Untuk menaikkan ke produksi (Supabase + Vercel), ikuti
+[DEPLOYMENT.md](DEPLOYMENT.md) — urutannya mengikat, dan `seed.sql` tidak
+boleh ikut ke produksi.
 
 ## Model akses
 
