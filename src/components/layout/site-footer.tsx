@@ -22,6 +22,7 @@ const FOOTER_SECTIONS = [
       { href: "/mentorship", label: "Mentor Senpai-Kouhai" },
       { href: "/jobs", label: "Papan lowongan" },
       { href: "/resources", label: "Resource" },
+      { href: "/assistant", label: "Asisten UJC" },
     ],
   },
   {
