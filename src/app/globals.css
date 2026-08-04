@@ -1,0 +1,259 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --navy-900: #0f172a;
+  --navy-800: #1e3a8a;
+  --navy-700: #24408f;
+  --navy-600: #2f4fa8;
+  --blue-100: #dbeafe;
+  --blue-50: #eff6ff;
+  --gold-600: #b8860b;
+  --gold-500: #d4a017;
+  --gold-400: #eab308;
+  --gold-100: #fef3c7;
+  --slate-500: #64748b;
+  --slate-400: #94a3b8;
+
+  --background: #ffffff;
+  --surface: #ffffff;
+  --surface-muted: var(--blue-50);
+  --foreground: var(--navy-900);
+  --muted-foreground: var(--slate-500);
+  --primary: var(--navy-800);
+  --primary-foreground: #ffffff;
+  --accent: var(--gold-500);
+  --accent-foreground: var(--navy-900);
+  --accent-muted: var(--gold-100);
+  --border: var(--blue-100);
+  --border-strong: #bfdbfe;
+  --ring: var(--navy-800);
+
+  --success: #15803d;
+  --warning: #b45309;
+  --danger: #b91c1c;
+
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+}
+
+.dark {
+  --background: #070d1c;
+  --surface: #0f172a;
+  --surface-muted: #12203f;
+  --foreground: #e8eefb;
+  --muted-foreground: var(--slate-400);
+  --primary: #4a6fd4;
+  --primary-foreground: #ffffff;
+  --accent: var(--gold-400);
+  --accent-foreground: var(--navy-900);
+  --accent-muted: #3a2f10;
+  --border: #1e3163;
+  --border-strong: #2a4180;
+  --ring: #6b8ae0;
+
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-muted: var(--accent-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+
+  --color-navy-900: var(--navy-900);
+  --color-navy-800: var(--navy-800);
+  --color-navy-700: var(--navy-700);
+  --color-navy-600: var(--navy-600);
+  --color-brand-blue-100: var(--blue-100);
+  --color-brand-blue-50: var(--blue-50);
+  --color-gold-600: var(--gold-600);
+  --color-gold-500: var(--gold-500);
+  --color-gold-400: var(--gold-400);
+  --color-gold-100: var(--gold-100);
+
+  --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: var(--radius);
+  --radius-field: var(--radius-sm);
+  --radius-panel: var(--radius-lg);
+  --radius-pill: var(--radius-pill);
+
+  --text-display: 2.75rem;
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.025em;
+  --text-display--font-weight: 600;
+  --text-h1: 2.5rem;
+  --text-h1--line-height: 1.15;
+  --text-h1--letter-spacing: -0.02em;
+  --text-h1--font-weight: 600;
+  --text-h2: 1.9375rem;
+  --text-h2--line-height: 1.25;
+  --text-h2--letter-spacing: -0.015em;
+  --text-h2--font-weight: 600;
+  --text-h3: 1.4375rem;
+  --text-h3--line-height: 1.35;
+  --text-h3--font-weight: 500;
+  --text-body: 1rem;
+  --text-body--line-height: 1.7;
+  --text-caption: 0.8438rem;
+  --text-caption--line-height: 1.5;
+
+  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  /* Thin gold rule used under section headings for the premium accent. */
+  .rule-gold::after {
+    content: "";
+    display: block;
+    width: 3rem;
+    height: 2px;
+    margin-top: 0.75rem;
+    background-color: var(--accent);
+    border-radius: var(--radius-pill);
+  }
+
+  /* Shared typography for rich text, used by both the editor and the reader
+     so what an author sees while writing matches what gets published. */
+  .prose-ujc {
+    font-size: var(--text-body);
+    line-height: 1.7;
+    color: var(--foreground);
+  }
+  .prose-ujc > * + * {
+    margin-top: 1em;
+  }
+  .prose-ujc h2 {
+    font-size: var(--text-h3);
+    font-weight: 600;
+    margin-top: 1.6em;
+  }
+  .prose-ujc h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-top: 1.4em;
+  }
+  .prose-ujc ul,
+  .prose-ujc ol {
+    padding-left: 1.5rem;
+  }
+  .prose-ujc ul {
+    list-style: disc;
+  }
+  .prose-ujc ol {
+    list-style: decimal;
+  }
+  .prose-ujc li + li {
+    margin-top: 0.35em;
+  }
+  .prose-ujc a {
+    color: var(--primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose-ujc a:hover {
+    color: var(--accent);
+  }
+  .prose-ujc blockquote {
+    border-left: 2px solid var(--accent);
+    padding-left: 1rem;
+    color: var(--muted-foreground);
+  }
+  .prose-ujc code {
+    font-family: ui-monospace, monospace;
+    font-size: 0.875em;
+    background-color: var(--surface-muted);
+    border-radius: 6px;
+    padding: 0.15em 0.4em;
+  }
+  .prose-ujc pre {
+    background-color: var(--surface-muted);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    overflow-x: auto;
+  }
+  .prose-ujc pre code {
+    background: none;
+    padding: 0;
+  }
+  .prose-ujc img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-sm);
+  }
+  /* Tiptap placeholder */
+  .prose-ujc p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    color: var(--muted-foreground);
+    float: left;
+    height: 0;
+    pointer-events: none;
+  }
+
+  .skeleton-shimmer {
+    background-image: linear-gradient(
+      90deg,
+      var(--surface-muted) 25%,
+      var(--border) 50%,
+      var(--surface-muted) 75%
+    );
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
