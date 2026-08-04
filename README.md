@@ -145,6 +145,4 @@ penutupan lelang otomatis · notifikasi email
 
 ## Lisensi
 
-Belum ditentukan. Tanpa berkas `LICENSE`, hak cipta default berlaku dan orang
-lain tidak berhak memakai ulang kode ini — tambahkan lisensi bila memang ingin
-dibuka untuk umum.
+[MIT](LICENSE) © 2026 UNSIA Japan Community.
