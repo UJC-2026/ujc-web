@@ -145,3 +145,30 @@ preview sendiri.
 **Migrasi tidak ikut otomatis.** Kalau menambah berkas di
 `supabase/migrations/`, jalankan `npx supabase db push` secara terpisah —
 kalau tidak, kode baru akan berjalan di atas skema lama.
+
+### Menjadwalkan penutupan lelang (opsional)
+
+Lelang yang lewat batas waktu ditutup oleh `close_due_auctions()` (migrasi
+`0029`), dan halaman marketplace sudah memanggilnya setiap kali dibuka. Jadi
+hasilnya selalu benar untuk siapa pun yang melihat — **tanpa perlu setelan
+apa pun**. Yang belum tepat waktu hanyalah notifikasinya: kalau berhari-hari
+tidak ada yang membuka marketplace, pemenang baru diberi tahu saat kunjungan
+berikutnya.
+
+Kalau project Supabase-mu punya `pg_cron`, jadwalkan supaya penutupannya
+tepat waktu. Jalankan sekali di SQL Editor:
+
+```sql
+create extension if not exists pg_cron;
+
+select cron.schedule(
+  'tutup-lelang-jatuh-tempo',
+  '*/5 * * * *',
+  $$select close_due_auctions()$$
+);
+```
+
+`pg_cron` sengaja tidak diaktifkan lewat migrasi: tidak semua paket Supabase
+mengizinkannya, dan `create extension` yang ditolak akan menggagalkan migrasi
+sehingga seluruh deploy berikutnya ikut terhenti — harga yang terlalu mahal
+untuk sesuatu yang sifatnya penyempurnaan.

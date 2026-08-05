@@ -757,3 +757,34 @@ values
   ('e0000000-0000-4000-8000-000000000004',
    '22222222-2222-4222-8222-222222222222', 'kode')
 on conflict (event_id, user_id) do nothing;
+
+-- Lelang yang sudah lewat batas waktu, dibiarkan belum ditutup: begitu
+-- marketplace dibuka, close_due_auctions() (0029) yang menetapkan pemenangnya.
+insert into marketplace_items (
+  id, seller_id, title, description, category, condition, price,
+  is_giveaway, is_auction, auction_end_at, city, prefecture, status
+)
+values
+  ('f1000000-0000-4000-8000-000000000009',
+   '44444444-4444-4444-8444-444444444444',
+   'Monitor 24 inci, lelang selesai',
+   'Dilelang sebelum pindah apato. Batas waktunya sudah lewat.',
+   'Elektronik', 'Bekas - mulus', 6000, false, true,
+   now() - interval '2 hours', 'Tokyo', 'Tokyo', 'tersedia')
+on conflict (id) do nothing;
+
+-- Penawaran dimasukkan saat lelangnya masih dianggap berjalan, karena trigger
+-- 0012 menolak tawaran pada lelang yang sudah ditutup.
+update marketplace_items set auction_end_at = now() + interval '1 hour'
+  where id = 'f1000000-0000-4000-8000-000000000009';
+
+insert into marketplace_bids (item_id, bidder_id, amount)
+values
+  ('f1000000-0000-4000-8000-000000000009',
+   '33333333-3333-4333-8333-333333333333', 6500),
+  ('f1000000-0000-4000-8000-000000000009',
+   '22222222-2222-4222-8222-222222222222', 7200)
+on conflict do nothing;
+
+update marketplace_items set auction_end_at = now() - interval '2 hours'
+  where id = 'f1000000-0000-4000-8000-000000000009';

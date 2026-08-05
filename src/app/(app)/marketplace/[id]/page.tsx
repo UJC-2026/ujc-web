@@ -60,6 +60,12 @@ export default async function ItemPage({ params }: PageProps) {
   const closed = auctionClosed(item);
   const isSeller = profile?.id === item.seller_id;
 
+  // The winner is recorded on the item; the bid list already carries the names.
+  const winner = item.auction_winner_id
+    ? (bids.find((bid) => bid.bidder_id === item.auction_winner_id)?.bidder ??
+      null)
+    : null;
+
   // The listed price opens the bidding; after that each bid must beat the last.
   const minimumBid = item.topBid > 0 ? item.topBid + 1 : (item.price ?? 1);
 
@@ -141,6 +147,30 @@ export default async function ItemPage({ params }: PageProps) {
           </span>
         )}
       </div>
+
+      {/* The result, once close_due_auctions has settled it (0029). Shown to
+          everyone — an auction whose outcome is hidden looks unfinished — with
+          an extra line for the two people it actually obliges. */}
+      {item.is_auction && item.auction_winner_id && (
+        <div className="mt-5 rounded-panel border border-accent/40 bg-accent-muted/30 p-5">
+          <p className="flex items-center gap-2 text-body font-medium text-foreground">
+            <Gavel className="size-5 shrink-0 text-primary" aria-hidden />
+            Dimenangkan {winner ? `oleh ${winner.full_name}` : ""} dengan
+            tawaran {yen.format(item.topBid)}
+          </p>
+          {profile?.id === item.auction_winner_id && (
+            <p className="mt-2 text-caption text-muted-foreground">
+              Kamu pemenangnya. Hubungi penjual lewat pesan untuk serah terima.
+            </p>
+          )}
+          {isSeller && (
+            <p className="mt-2 text-caption text-muted-foreground">
+              Barangnya ditandai dipesan. Tandai terjual setelah serah terima
+              selesai.
+            </p>
+          )}
+        </div>
+      )}
 
       {item.is_auction && !closed && item.auction_end_at && (
         <div className="mt-3">
@@ -260,12 +290,9 @@ export default async function ItemPage({ params }: PageProps) {
             </p>
           ) : closed ? (
             <p className="mt-5 text-body text-muted-foreground">
-              Lelang sudah ditutup
-              {bids[0] &&
-                ` — tawaran tertinggi ${yen.format(bids[0].amount)} dari ${
-                  bids[0].bidder?.full_name ?? "anggota"
-                }`}
-              .
+              {item.auction_winner_id
+                ? "Lelang sudah ditutup — hasilnya ada di atas."
+                : "Lelang sudah ditutup tanpa penawar."}
             </p>
           ) : item.status !== "tersedia" ? (
             <p className="mt-5 text-body text-muted-foreground">

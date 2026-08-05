@@ -153,6 +153,23 @@ begitu pembacanya pengurus — sempat membuat setiap pengurus dianggap sudah
 hadir, lengkap dengan nomor sertifikat milik anggota lain. RLS di sini adalah
 batas atas, bukan filter.
 
+**Lelang ditutup saat halaman dibuka, bukan oleh penjadwal.** Tidak ada
+trigger yang menyala saat sebuah timestamp lewat, jadi harus ada yang
+bertanya. `close_due_auctions()` (`0029`) bersifat idempoten dan tanpa
+argumen, dan dipanggil dari query marketplace — hasilnya benar untuk siapa pun
+yang melihat, di deployment mana pun, tanpa infrastruktur tambahan.
+Penandanya `auction_closed_at`: itu yang membuat sepuluh kunjungan menutup
+lelang sekali dan mengirim satu notifikasi. `pg_cron` sengaja tidak
+diaktifkan lewat migrasi (`create extension` yang ditolak akan menggagalkan
+seluruh deploy berikutnya) — cara menjadwalkannya ada di DEPLOYMENT.md, dan
+efeknya hanya membuat penutupan tepat waktu, bukan membuatnya benar.
+
+Notifikasinya ditulis langsung, bukan lewat `notify_user()`, yang berhenti
+kalau targetnya sama dengan pemanggil. Aturan itu tepat untuk "si A membalas
+threadmu" dan salah di sini: yang kunjungannya memicu penutupan biasanya
+justru penawar — bisa jadi pemenangnya sendiri, satu-satunya orang yang malah
+tidak akan diberi tahu.
+
 **Hapus akun menyerahkan keputusannya ke foreign key, bukan ke kode.** Aturan
 `on delete` sudah menyimpan kebijakan yang benar sejak `0001`: konten pribadi
 (thread, artikel, barang, pesan) `cascade` dari `profiles`, sedangkan catatan
@@ -190,7 +207,8 @@ nol; itu memang harus begitu.
 
 Web Push · i18n Bahasa Jepang · badge & pencapaian · unggah dokumen di panel
 Administrasi · pembersihan berkas lama di Storage saat gambar diganti ·
-penutupan lelang otomatis · notifikasi email · feed otomatis media sosial
+notifikasi email · section partner di beranda (tabel `partners` sudah ada,
+belum dipakai) · reminder akademik akhir pekan · feed otomatis media sosial
 (butuh API key + app review tiap platform; Creative Hub memakai kurasi tautan
 sebagai gantinya)
 

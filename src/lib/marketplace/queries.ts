@@ -17,6 +17,9 @@ export type MarketItem = {
   status: ItemStatus;
   is_auction: boolean;
   auction_end_at: string | null;
+  /** Set by close_due_auctions once the deadline has passed. */
+  auction_closed_at: string | null;
+  auction_winner_id: string | null;
   created_at: string;
   seller: { id: string; full_name: string; avatar_url: string | null } | null;
   /** Filled from marketplace_top_bids; 0 when nobody has bid. */
@@ -26,6 +29,29 @@ export type MarketItem = {
 
 const SELLER_FIELDS =
   "seller:profiles!marketplace_items_seller_id_fkey(id, full_name, avatar_url)";
+
+/**
+ * Concludes any auction whose deadline has passed, before the page reads the
+ * rows it is about to render.
+ *
+ * Nothing in Postgres fires when a timestamp goes by, so somebody has to ask.
+ * Doing it on the way into the marketplace means the result is correct for
+ * whoever is looking, on any deployment, with no scheduler to provision — and
+ * `close_due_auctions()` is idempotent and indexed, so the usual case is one
+ * cheap query returning zero rows. DEPLOYMENT.md covers scheduling it with
+ * pg_cron as well, which only makes the closing punctual rather than
+ * eventual; it does not change what this reads.
+ */
+async function sweepDueAuctions(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+): Promise<void> {
+  // A failure here must not take the marketplace down with it: the worst
+  // outcome is an auction that shows as running slightly too long.
+  const { error } = await supabase.rpc("close_due_auctions");
+  if (error) {
+    console.error("close_due_auctions failed", error.message);
+  }
+}
 
 async function withBids(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -63,6 +89,7 @@ export async function getMarketItems({
   onlyAuction?: boolean;
 } = {}): Promise<MarketItem[]> {
   const supabase = await createClient();
+  await sweepDueAuctions(supabase);
 
   let query = supabase
     .from("marketplace_items")
@@ -79,6 +106,8 @@ export async function getMarketItems({
 
 export async function getMarketItem(id: string): Promise<MarketItem | null> {
   const supabase = await createClient();
+  await sweepDueAuctions(supabase);
+
   const { data } = await supabase
     .from("marketplace_items")
     .select(`*, ${SELLER_FIELDS}`)
@@ -105,6 +134,8 @@ export type Bid = {
   id: string;
   amount: number;
   created_at: string;
+  /** Carried so the winning bid can be matched by id rather than by name. */
+  bidder_id: string;
   bidder: { full_name: string } | null;
 };
 
@@ -113,7 +144,7 @@ export async function getItemBids(itemId: string): Promise<Bid[]> {
   const { data } = await supabase
     .from("marketplace_bids")
     .select(
-      "id, amount, created_at, bidder:profiles!marketplace_bids_bidder_id_fkey(full_name)",
+      "id, amount, created_at, bidder_id, bidder:profiles!marketplace_bids_bidder_id_fkey(full_name)",
     )
     .eq("item_id", itemId)
     .order("amount", { ascending: false });
@@ -124,6 +155,7 @@ export async function getItemBids(itemId: string): Promise<Bid[]> {
       id: row.id as string,
       amount: row.amount as number,
       created_at: row.created_at as string,
+      bidder_id: row.bidder_id as string,
       bidder: (bidder as { full_name: string }) ?? null,
     };
   });
