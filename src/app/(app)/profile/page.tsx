@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Award } from "lucide-react";
+import { Award, ShieldCheck } from "lucide-react";
 import { requireProfile } from "@/lib/auth/session";
 import { getMyCertificates } from "@/lib/events/checkin";
 import { profileCompletion } from "@/lib/validations/profile";
@@ -96,6 +96,21 @@ export default async function ProfilePage() {
           </ul>
         </div>
       )}
+
+      <Link
+        href="/settings/data"
+        className="mt-8 flex items-center gap-3 rounded-panel border border-border bg-surface px-6 py-5 transition-colors hover:border-accent"
+      >
+        <ShieldCheck className="size-5 shrink-0 text-primary" aria-hidden />
+        <span className="min-w-0 flex-1">
+          <span className="block text-body font-medium text-foreground">
+            Data &amp; akun
+          </span>
+          <span className="block text-caption text-muted-foreground">
+            Unduh salinan datamu, atau hapus akun.
+          </span>
+        </span>
+      </Link>
     </div>
   );
 }

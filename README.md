@@ -91,8 +91,8 @@ Latihan CBT (JLPT/SSW, timer, penilaian di server) · Papan lowongan ·
 Mentorship Senpai-Kouhai · UJC Peduli · Blog · Creative Hub · Workshop &
 webinar · QR check-in & e-sertifikat · Direktori bisnis anggota · Asisten AI
 (kuota harian) · Pencarian global (Ctrl+K) · Pesan langsung · Direktori
-anggota · Peta sebaran · Struktur organisasi · Galeri · Notifikasi · Panel
-admin · Dashboard pengurus 12 panel · PWA offline
+anggota · Peta sebaran · Struktur organisasi · Galeri · Notifikasi · Ekspor &
+hapus data mandiri · Panel admin · Dashboard pengurus 12 panel · PWA offline
 
 ## Catatan implementasi
 
@@ -152,6 +152,15 @@ karena mengira "RLS sudah menyaring" akan mengembalikan baris orang lain
 begitu pembacanya pengurus — sempat membuat setiap pengurus dianggap sudah
 hadir, lengkap dengan nomor sertifikat milik anggota lain. RLS di sini adalah
 batas atas, bukan filter.
+
+**Hapus akun menyerahkan keputusannya ke foreign key, bukan ke kode.** Aturan
+`on delete` sudah menyimpan kebijakan yang benar sejak `0001`: konten pribadi
+(thread, artikel, barang, pesan) `cascade` dari `profiles`, sedangkan catatan
+milik komunitas (donasi UJC Peduli, pembukuan, jejak audit, event yang pernah
+ia panitiai) `set null` sehingga tetap ada tanpa tertaut namanya. `0028`
+karena itu cukup menghapus satu baris di `auth.users`. Admin terakhir ditolak
+— himpunan admin yang kosong mengunci seluruh alat pengurus dan tidak bisa
+diperbaiki dari dalam aplikasi.
 
 ## Pengujian
 

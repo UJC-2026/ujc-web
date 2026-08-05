@@ -135,12 +135,20 @@ export default function PrivacyPage() {
           <li>Keluar dari peta anggota.</li>
           <li>Mematikan jenis notifikasi tertentu.</li>
           <li>
-            Meminta ekspor atau penghapusan data pribadimu — hubungi pengurus.
+            Mengunduh salinan data pribadimu kapan saja lewat{" "}
+            <Link href="/settings/data">halaman Data &amp; akun</Link>.
+          </li>
+          <li>
+            Menghapus akunmu sendiri dari halaman yang sama, tanpa menunggu
+            pengurus memprosesnya.
           </li>
         </ul>
         <p>
-          Fitur ekspor dan hapus data mandiri belum tersedia di website; saat ini
-          permintaan diproses manual oleh pengurus.
+          Menghapus akun akan menghapus profil, tulisan forum, artikel, barang
+          marketplace, pesan, dan riwayat aktivitasmu. Catatan yang menjadi
+          milik komunitas — donasi UJC Peduli, pembukuan, dan jejak audit —
+          tetap tersimpan demi transparansi, tetapi tidak lagi terhubung dengan
+          namamu.
         </p>
 
         <h2>Menghubungi kami</h2>
