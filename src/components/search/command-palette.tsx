@@ -15,6 +15,7 @@ const NAV_SHORTCUTS = [
   { label: "Papan lowongan", href: "/jobs" },
   { label: "Latihan CBT", href: "/cbt" },
   { label: "Direktori anggota", href: "/members" },
+  { label: "Creative Hub", href: "/creative-hub" },
   { label: "UJC Peduli", href: "/peduli" },
   { label: "Pesan", href: "/messages" },
 ];

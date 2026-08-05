@@ -31,6 +31,7 @@ const FOOTER_SECTIONS = [
       { href: "/marketplace", label: "Marketplace" },
       { href: "/business", label: "Bisnis anggota" },
       { href: "/blog", label: "Blog komunitas" },
+      { href: "/creative-hub", label: "Creative Hub" },
       { href: "/peduli", label: "UJC Peduli" },
     ],
   },

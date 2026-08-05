@@ -706,6 +706,30 @@ values
   ('d5000000-0000-0000-0000-000000000001', '44444444-4444-4444-4444-444444444444')
 on conflict do nothing;
 
+-- Karya kreatif contoh. Trigger guard menolak insert dengan is_approved=true
+-- dari non-pengurus, dan seed tidak punya sesi — jadi dinonaktifkan sebentar.
+alter table creative_works disable trigger creative_works_guard;
+insert into creative_works (id, submitted_by, title, description, url, platform, youtube_id, is_approved, is_featured)
+values
+  ('d7000000-0000-0000-0000-000000000001', '33333333-3333-3333-3333-333333333333',
+   'Vlog: Sehari kerja di pabrik sambil kuliah daring',
+   'Rutinitas shift pagi, belajar di jam istirahat, dan tips atur energi.',
+   'https://www.youtube.com/watch?v=contohUJC01', 'youtube', 'contohUJC01', true, true),
+  ('d7000000-0000-0000-0000-000000000002', '44444444-4444-4444-4444-444444444444',
+   'Fotografi: Musim gugur di Kyoto',
+   'Seri foto momiji dari kamera HP, diambil saat libur shift.',
+   'https://www.instagram.com/p/contoh-momiji/', 'instagram', null, true, false),
+  ('d7000000-0000-0000-0000-000000000003', '22222222-2222-2222-2222-222222222222',
+   'Cover lagu: Sakura (Ikimono Gakari)',
+   'Direkam di kamar apato, gitar akustik.',
+   'https://www.youtube.com/watch?v=contohUJC02', 'youtube', 'contohUJC02', true, false),
+  ('d7000000-0000-0000-0000-000000000004', '33333333-3333-3333-3333-333333333333',
+   'Komik strip: Salah naik kereta ekspres',
+   'Pengalaman pertama kali salah naik kaisoku.',
+   'https://www.instagram.com/p/contoh-komik/', 'instagram', null, false, false)
+on conflict (id) do nothing;
+alter table creative_works enable trigger creative_works_guard;
+
 -- Gives the seeded member a non-zero gamification score.
 insert into user_points (user_id, points, source)
 values

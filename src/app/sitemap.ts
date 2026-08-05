@@ -10,8 +10,10 @@ import { createClient } from "@/lib/supabase/server";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = env.NEXT_PUBLIC_SITE_URL;
 
-  const staticRoutes: MetadataRoute.Sitemap = [
-    "",
+  // Feature indexes gain rows as members post; the informational pages below
+  // are edited once in a blue moon, so they are advertised as such rather than
+  // asking crawlers back every week for a page that never moves.
+  const featureRoutes = [
     "/forum",
     "/events",
     "/resources",
@@ -25,12 +27,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/map",
     "/structure",
     "/gallery",
-  ].map((path) => ({
-    url: `${base}${path}`,
-    lastModified: new Date(),
-    changeFrequency: path === "" ? "daily" : "weekly",
-    priority: path === "" ? 1 : 0.7,
-  }));
+    "/creative-hub",
+    "/workshops",
+    "/business",
+  ];
+
+  const infoRoutes = [
+    "/about",
+    "/help",
+    "/accessibility",
+    "/privacy",
+    "/terms",
+  ];
+
+  const staticRoutes: MetadataRoute.Sitemap = [
+    {
+      url: base,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 1,
+    },
+    ...featureRoutes.map((path) => ({
+      url: `${base}${path}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })),
+    ...infoRoutes.map((path) => ({
+      url: `${base}${path}`,
+      lastModified: new Date(),
+      changeFrequency: "yearly" as const,
+      priority: 0.3,
+    })),
+  ];
 
   const supabase = await createClient();
 

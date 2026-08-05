@@ -19,7 +19,12 @@ function storagePattern(): URL[] {
   if (!raw) return [];
 
   try {
-    return [new URL(`${raw}/storage/v1/object/public/**`)];
+    return [
+      new URL(`${raw}/storage/v1/object/public/**`),
+      // YouTube serves per-video thumbnails publicly; the creative hub uses
+      // them so a video card looks like the video without any API key.
+      new URL("https://img.youtube.com/vi/**"),
+    ];
   } catch {
     throw new Error(
       [

@@ -163,6 +163,76 @@ export async function getModerationQueue(): Promise<QueueItem[]> {
   return items.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
+export type PendingSubmission = {
+  kind: "lowongan" | "artikel" | "bisnis" | "karya";
+  id: string;
+  title: string;
+  submitter: string | null;
+  createdAt: string;
+  href: string;
+};
+
+/**
+ * Everything sitting behind a review gate, in one list. Each of these gates is
+ * enforced by a database trigger; this query only surfaces the backlog so
+ * moderators do not have to visit four pages to find it.
+ */
+export async function getPendingSubmissions(): Promise<PendingSubmission[]> {
+  const supabase = await createClient();
+
+  const [jobs, posts, businesses, works] = await Promise.all([
+    supabase
+      .from("jobs")
+      .select("id, title, created_at, poster:profiles!jobs_posted_by_fkey(full_name)")
+      .eq("is_verified", false),
+    supabase
+      .from("blog_posts")
+      .select("id, title, slug, created_at, author:profiles!blog_posts_author_id_fkey(full_name)")
+      .eq("status", "ditinjau"),
+    supabase
+      .from("businesses")
+      .select("id, name, created_at, owner:profiles!businesses_owner_id_fkey(full_name)")
+      .eq("is_verified", false),
+    supabase
+      .from("creative_works")
+      .select("id, title, created_at, author:profiles!creative_works_submitted_by_fkey(full_name)")
+      .eq("is_approved", false),
+  ]);
+
+  const items: PendingSubmission[] = [];
+
+  for (const row of jobs.data ?? []) {
+    items.push({
+      kind: "lowongan", id: row.id as string, title: row.title as string,
+      submitter: toOne<{ full_name: string }>(row.poster)?.full_name ?? null,
+      createdAt: row.created_at as string, href: `/jobs/${row.id}`,
+    });
+  }
+  for (const row of posts.data ?? []) {
+    items.push({
+      kind: "artikel", id: row.id as string, title: row.title as string,
+      submitter: toOne<{ full_name: string }>(row.author)?.full_name ?? null,
+      createdAt: row.created_at as string, href: `/blog/${row.slug}`,
+    });
+  }
+  for (const row of businesses.data ?? []) {
+    items.push({
+      kind: "bisnis", id: row.id as string, title: row.name as string,
+      submitter: toOne<{ full_name: string }>(row.owner)?.full_name ?? null,
+      createdAt: row.created_at as string, href: "/business",
+    });
+  }
+  for (const row of works.data ?? []) {
+    items.push({
+      kind: "karya", id: row.id as string, title: row.title as string,
+      submitter: toOne<{ full_name: string }>(row.author)?.full_name ?? null,
+      createdAt: row.created_at as string, href: "/creative-hub",
+    });
+  }
+
+  return items.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
 /** Resolves queue entries to a title and link so moderators see the context. */
 export async function getQueueTargets(
   items: QueueItem[],
