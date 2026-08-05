@@ -1,7 +1,7 @@
-import Image from "next/image";
 import { Camera, Globe, Link2, Music4, Play, Sparkles } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { YouTubeThumbnail } from "@/components/creative/thumbnail";
 import type { CreativeWork } from "@/lib/creative/queries";
 import { curateWork, deleteWork } from "@/app/(app)/creative-hub/actions";
 
@@ -34,20 +34,7 @@ export function WorkCard({
         aria-label={`Buka “${work.title}” di ${platform.label}`}
       >
         {work.youtube_id ? (
-          <div className="relative">
-            <Image
-              src={`https://img.youtube.com/vi/${work.youtube_id}/hqdefault.jpg`}
-              alt=""
-              width={480}
-              height={270}
-              className="aspect-video w-full object-cover"
-            />
-            <span className="absolute inset-0 flex items-center justify-center bg-navy-900/25 transition-colors group-hover:bg-navy-900/10">
-              <span className="flex size-12 items-center justify-center rounded-pill bg-white/90 text-primary shadow-md transition-transform group-hover:scale-110">
-                <Play className="ml-0.5 size-5" aria-hidden />
-              </span>
-            </span>
-          </div>
+          <YouTubeThumbnail videoId={work.youtube_id} />
         ) : (
           <div className="flex aspect-video w-full items-center justify-center bg-gradient-to-br from-primary/12 via-accent-muted/40 to-primary/8">
             <platform.icon className="size-10 text-primary/50" aria-hidden />
