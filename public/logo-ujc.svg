@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Logo UNSIA Japan Community">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e6effb"/>
+      <stop offset="1" stop-color="#c7dcf4"/>
+    </linearGradient>
+    <linearGradient id="fuji" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4c8ed4"/>
+      <stop offset="0.5" stop-color="#1a63b4"/>
+      <stop offset="1" stop-color="#0a4991"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fcd94b"/>
+      <stop offset="1" stop-color="#f0b31c"/>
+    </linearGradient>
+    <clipPath id="disc"><circle cx="256" cy="256" r="184"/></clipPath>
+    <path id="arcTop" d="M 44 256 a 212 212 0 0 1 424 0" fill="none"/>
+    <path id="arcBot" d="M 40 256 a 216 216 0 0 0 432 0" fill="none"/>
+  </defs>
+
+  <!-- outer badge: white ring with navy borders -->
+  <circle cx="256" cy="256" r="249" fill="#fbfcfd"/>
+  <circle cx="256" cy="256" r="249" fill="none" stroke="#0b2f6b" stroke-width="10"/>
+  <circle cx="256" cy="256" r="188" fill="none" stroke="#0b2f6b" stroke-width="6"/>
+
+  <!-- inner disc: sky + Fuji -->
+  <circle cx="256" cy="256" r="184" fill="url(#sky)"/>
+  <g clip-path="url(#disc)">
+    <!-- mountain body: broad rounded peak flaring to the disc edges -->
+    <path d="M256 116 C 296 120 320 176 348 240 C 376 306 414 386 448 442 L 64 442 C 98 386 136 306 164 240 C 192 176 216 120 256 116 Z" fill="url(#fuji)"/>
+    <!-- large rounded snow cap with scalloped hem -->
+    <path d="M256 114 C 294 118 318 168 336 214
+             C 326 206 318 220 306 210 C 294 200 286 216 274 206 C 262 196 250 212 238 202 C 226 192 216 208 206 198 C 196 190 186 202 176 214
+             C 194 168 218 118 256 114 Z" fill="#fbfdff" stroke="#a9c6e4" stroke-width="2.5"/>
+    <!-- faint cloud streaks -->
+    <path d="M100 296 h64 M348 318 h72 M120 350 h48" stroke="#ffffff" stroke-opacity="0.5" stroke-width="9" stroke-linecap="round"/>
+  </g>
+
+  <!-- UNSIA chevron emblem (scaled to match the original's proportion) -->
+  <g transform="translate(256 322) scale(0.78)">
+    <!-- gold roof chevron -->
+    <path d="M0 -118 L 100 -56 L 100 -22 L 0 -84 L -100 -22 L -100 -56 Z" fill="url(#gold)"/>
+    <!-- navy shield -->
+    <path d="M0 -66 L 96 -6 L 96 66 C 96 78 89 87 78 91 L 0 120 L -78 91 C -89 87 -96 78 -96 66 L -96 -6 Z" fill="#0a3f7e"/>
+    <!-- white chevrons inside shield -->
+    <path d="M0 -48 L 76 -2 L 76 22 L 0 -24 L -76 22 L -76 -2 Z" fill="#fbfcfd"/>
+    <path d="M0 -6 L 76 40 L 76 64 L 0 18 L -76 64 L -76 40 Z" fill="#fbfcfd"/>
+    <!-- wave at shield base -->
+    <path d="M-66 84 C -44 70 -22 98 0 84 C 22 70 44 98 66 84 L 66 94 L 0 116 L -66 94 Z" fill="#fbfcfd"/>
+  </g>
+
+  <!-- curved wordmarks on the white ring -->
+  <text font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="800" fill="#0b2f6b" letter-spacing="12">
+    <textPath href="#arcTop" startOffset="50%" text-anchor="middle">UNSIA</textPath>
+  </text>
+  <text font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="800" fill="#0b2f6b" letter-spacing="3">
+    <textPath href="#arcBot" startOffset="50%" text-anchor="middle">JAPAN COMMUNITY</textPath>
+  </text>
+</svg>
