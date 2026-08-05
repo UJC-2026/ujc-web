@@ -71,7 +71,10 @@ async function withCounts(
  * RLS returns published articles plus the caller's own drafts and, for
  * pengurus, everything awaiting review — so no status filter is applied here.
  */
-export async function getPosts(category?: string): Promise<BlogPost[]> {
+export async function getPosts(
+  category?: string,
+  tag?: string,
+): Promise<BlogPost[]> {
   const supabase = await createClient();
 
   let query = supabase
@@ -81,9 +84,31 @@ export async function getPosts(category?: string): Promise<BlogPost[]> {
     .order("created_at", { ascending: false });
 
   if (category) query = query.eq("category", category);
+  // Array containment — matches posts whose tags include the requested one.
+  if (tag) query = query.contains("tags", [tag]);
 
   const { data } = await query;
   return withCounts(supabase, (data ?? []) as Record<string, unknown>[]);
+}
+
+/** Tags across published posts, most used first, for the filter row. */
+export async function getBlogTags(limit = 12): Promise<string[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("blog_posts")
+    .select("tags")
+    .eq("status", "terbit");
+
+  const counts = new Map<string, number>();
+  for (const row of data ?? []) {
+    for (const t of (row.tags as string[] | null) ?? []) {
+      counts.set(t, (counts.get(t) ?? 0) + 1);
+    }
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([t]) => t);
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {

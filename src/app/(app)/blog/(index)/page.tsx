@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { NotebookPen, PenLine } from "lucide-react";
-import { getBlogCategories, getPosts } from "@/lib/blog/queries";
+import { getBlogCategories, getBlogTags, getPosts } from "@/lib/blog/queries";
 import { getCurrentUser } from "@/lib/auth/session";
 import { PostCard } from "@/components/blog/post-card";
 import { Button } from "@/components/ui/button";
@@ -18,13 +18,14 @@ export const metadata: Metadata = {
 export default async function BlogPage({
   searchParams,
 }: {
-  searchParams: Promise<{ kategori?: string }>;
+  searchParams: Promise<{ kategori?: string; tag?: string }>;
 }) {
-  const { kategori } = await searchParams;
+  const { kategori, tag } = await searchParams;
 
-  const [posts, categories, user] = await Promise.all([
-    getPosts(kategori),
+  const [posts, categories, tags, user] = await Promise.all([
+    getPosts(kategori, tag),
     getBlogCategories(),
+    getBlogTags(),
     getCurrentUser(),
   ]);
 
@@ -72,6 +73,24 @@ export default async function BlogPage({
               className={chip(kategori === item)}
             >
               {item}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {tags.length > 0 && (
+        <div
+          role="group"
+          aria-label="Saring tag"
+          className="mt-3 flex flex-wrap gap-1.5"
+        >
+          {tags.map((item) => (
+            <Link
+              key={item}
+              href={tag === item ? "/blog" : `/blog?tag=${encodeURIComponent(item)}`}
+              className={chip(tag === item)}
+            >
+              #{item}
             </Link>
           ))}
         </div>
