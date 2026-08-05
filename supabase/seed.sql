@@ -788,3 +788,9 @@ on conflict do nothing;
 
 update marketplace_items set auction_end_at = now() - interval '2 hours'
   where id = 'f1000000-0000-4000-8000-000000000009';
+
+-- Video profil untuk beranda. Dibiarkan berupa id contoh: renderer-nya sudah
+-- menangani thumbnail yang gagal dimuat, jadi tampilannya tetap wajar.
+update site_settings
+   set value = 'https://www.youtube.com/watch?v=contohUJCvid'
+ where key = 'home_video_url';

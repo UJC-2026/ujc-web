@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   BriefcaseBusiness,
   GraduationCap,
@@ -15,7 +16,9 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { CountUp } from "@/components/motion/count-up";
 import { KizunaMark } from "@/components/brand/motifs";
 import { FeaturedGallery } from "@/components/home/featured-gallery";
+import { ProfileVideo } from "@/components/home/profile-video";
 import { getPhotos } from "@/lib/gallery/queries";
+import { getPartners, getSiteSetting, youtubeId } from "@/lib/home/queries";
 
 export const revalidate = 300;
 
@@ -87,10 +90,17 @@ async function getCommunityStats(): Promise<HeroStat[]> {
 }
 
 export default async function HomePage() {
-  const [stats, featuredPhotos] = await Promise.all([
+  const [stats, featuredPhotos, partners, videoUrl] = await Promise.all([
     getCommunityStats(),
     getPhotos(true),
+    getPartners(),
+    getSiteSetting("home_video_url"),
   ]);
+
+  // Both sections below stay out of the page entirely until there is something
+  // to put in them — an empty "Partner & kolaborasi" strip reads worse than no
+  // strip at all on a community that has not signed any yet.
+  const videoId = youtubeId(videoUrl);
 
   return (
     <>
@@ -129,6 +139,28 @@ export default async function HomePage() {
         </RevealGroup>
       </section>
 
+      {/* Between the "what UJC is" section and the statistics, where the spec
+          asks for it: the numbers land differently after seeing the people. */}
+      {videoId && (
+        <section className="mx-auto w-full max-w-4xl px-4 pb-20 sm:pb-24">
+          <Reveal>
+            <h2 className="rule-gold text-h2 text-foreground">
+              Sehari-hari anggota UJC
+            </h2>
+            <p className="mt-5 max-w-2xl text-body text-muted-foreground">
+              Kuliah daring di sela shift, kopdar akhir pekan, dan cerita
+              anggota yang sudah lebih dulu menjalaninya.
+            </p>
+            <div className="mt-9">
+              <ProfileVideo
+                videoId={videoId}
+                title="Video profil UNSIA Japan Community"
+              />
+            </div>
+          </Reveal>
+        </section>
+      )}
+
       <section className="relative isolate overflow-hidden border-y border-border bg-surface-muted/60">
         <KizunaMark className="absolute -right-8 -bottom-16 -z-10 text-[18rem] leading-none text-brand-blue-100 dark:text-navy-800/40" />
 
@@ -153,6 +185,71 @@ export default async function HomePage() {
           </RevealGroup>
         </div>
       </section>
+
+      {partners.length > 0 && (
+        <section className="mx-auto w-full max-w-6xl px-4 pt-20 sm:pt-24">
+          <Reveal className="max-w-2xl">
+            <h2 className="rule-gold text-h2 text-foreground">
+              Partner &amp; kolaborasi
+            </h2>
+            <p className="mt-5 text-body text-muted-foreground">
+              Pihak yang berjalan bersama UJC — kampus, penyalur kerja, dan
+              komunitas Indonesia lain di Jepang.
+            </p>
+          </Reveal>
+
+          <RevealGroup className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {partners.map((partner) => {
+              const card = (
+                <Card
+                  interactive={Boolean(partner.website_url)}
+                  className="flex h-full flex-col"
+                >
+                  {partner.logo_url ? (
+                    <Image
+                      src={partner.logo_url}
+                      alt={partner.name}
+                      width={200}
+                      height={64}
+                      className="h-12 w-auto max-w-[12rem] object-contain"
+                    />
+                  ) : (
+                    <span className="flex h-12 items-center text-h3 font-semibold text-primary">
+                      {partner.name}
+                    </span>
+                  )}
+
+                  {partner.logo_url && (
+                    <CardTitle className="mt-4">{partner.name}</CardTitle>
+                  )}
+                  {partner.description && (
+                    <CardDescription className="mt-2 text-body">
+                      {partner.description}
+                    </CardDescription>
+                  )}
+                </Card>
+              );
+
+              return (
+                <RevealItem key={partner.id}>
+                  {partner.website_url ? (
+                    <a
+                      href={partner.website_url}
+                      target="_blank"
+                      rel="noopener noreferrer nofollow"
+                      className="block h-full"
+                    >
+                      {card}
+                    </a>
+                  ) : (
+                    card
+                  )}
+                </RevealItem>
+              );
+            })}
+          </RevealGroup>
+        </section>
+      )}
 
       <section className="mx-auto w-full max-w-6xl px-4 py-20 sm:py-24">
         <Reveal className="rounded-panel border border-border bg-navy-800 px-7 py-14 text-center sm:px-12">

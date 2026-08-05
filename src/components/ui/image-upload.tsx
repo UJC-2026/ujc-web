@@ -6,7 +6,10 @@ import { ImagePlus, Loader2, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
-type Bucket = "avatars" | "marketplace" | "blog" | "gallery";
+// "partners" is the odd one out: its policies gate on the pengurus role rather
+// than on the folder, because a partner logo belongs to the organisation
+// rather than to whoever happened to upload it (0031).
+type Bucket = "avatars" | "marketplace" | "blog" | "gallery" | "partners";
 
 /**
  * Uploads straight to Supabase Storage from the browser, then hands the public

@@ -154,6 +154,23 @@ begitu pembacanya pengurus — sempat membuat setiap pengurus dianggap sudah
 hadir, lengkap dengan nomor sertifikat milik anggota lain. RLS di sini adalah
 batas atas, bukan filter.
 
+**Video beranda dimuat setelah diklik, bukan saat halaman dibuka.** Menyematkan
+iframe YouTube langsung berarti memuat pemutarnya — beserta cookie-nya — untuk
+setiap pengunjung halaman depan, termasuk yang tidak pernah menontonnya. Yang
+tampil lebih dulu hanya gambar sampulnya; pemutar (`youtube-nocookie`) baru
+diminta setelah tombol putar ditekan. URL-nya disimpan di `site_settings`
+(`0031`) supaya pengurus bisa menggantinya tanpa deploy, dan id videonya
+diurai di server — yang masuk ke `src` iframe adalah hasil parsing, bukan
+tautan mentah yang ditempel seseorang.
+
+**Logo partner diunggah, bukan ditempel dari situs orang.** `next/image` hanya
+mengoptimalkan host yang terdaftar di `remotePatterns`, yaitu storage project
+ini sendiri — jadi URL logo dari luar tidak akan tampil sama sekali. Bucket
+`partners` (`0031`) juga membuat beranda tidak menautkan langsung ke server
+pihak lain. Policy-nya bertumpu pada peran, bukan folder pengunggah seperti
+bucket anggota: logo partner milik organisasi, bukan milik siapa yang kebetulan
+mengunggahnya.
+
 **Lencana diturunkan ulang, bukan dihitung maju.** `sync_badges()` (`0030`)
 menanyakan "sekarang anggota ini berhak apa saja" lalu memasukkan yang belum
 ada, sehingga aman dipanggil berapa kali pun — dan itu dipakai: pemicunya
@@ -218,7 +235,6 @@ nol; itu memang harus begitu.
 
 Web Push · i18n Bahasa Jepang · unggah dokumen di panel Administrasi ·
 pembersihan berkas lama di Storage saat gambar diganti · notifikasi email ·
-section partner di beranda (tabel `partners` sudah ada, belum dipakai) ·
 reminder akademik akhir pekan · feed otomatis media sosial (butuh API key +
 app review tiap platform; Creative Hub memakai kurasi tautan sebagai
 gantinya)

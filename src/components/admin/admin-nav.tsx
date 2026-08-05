@@ -2,12 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, LayoutDashboard, ScrollText, Users } from "lucide-react";
+import {
+  ClipboardList,
+  LayoutDashboard,
+  Layout,
+  ScrollText,
+  Users,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
   { href: "/admin", label: "Ikhtisar", icon: LayoutDashboard, adminOnly: false },
   { href: "/admin/moderasi", label: "Antrean moderasi", icon: ClipboardList, adminOnly: false },
+  { href: "/admin/beranda", label: "Konten beranda", icon: Layout, adminOnly: false },
   { href: "/admin/anggota", label: "Anggota", icon: Users, adminOnly: true },
   { href: "/admin/audit", label: "Catatan tindakan", icon: ScrollText, adminOnly: false },
 ];
