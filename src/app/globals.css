@@ -257,3 +257,83 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   E-sertifikat kehadiran
+
+   Every size here is in `cqw` — percent of the certificate's own width — so
+   the layout is identical whether it is on screen at 900px or on A4 in a print
+   preview. Viewport units would have been the obvious choice and are the wrong
+   one: browsers resolve `vw` against the paper box when printing, so the type
+   would jump the moment the user hit print.
+   --------------------------------------------------------------------------- */
+
+.certificate {
+  container-type: inline-size;
+  /* Fixed light palette: this sheet gets printed and is not themed. */
+  color: #0b2f6b;
+  background: #ffffff;
+}
+
+.certificate-eyebrow {
+  font-size: 1.5cqw;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+.certificate-title {
+  font-size: 3cqw;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.certificate-lead {
+  font-size: 1.4cqw;
+}
+.certificate-name {
+  font-size: 3.4cqw;
+  font-weight: 700;
+  border-bottom: 0.25cqw solid var(--accent);
+  padding: 0 4cqw 1cqw;
+}
+.certificate-event {
+  font-size: 2cqw;
+  font-weight: 600;
+  max-width: 85%;
+}
+.certificate-meta {
+  font-size: 1.15cqw;
+}
+.certificate-foot {
+  font-size: 1.05cqw;
+}
+.certificate-logo {
+  width: 9cqw;
+  height: 9cqw;
+}
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
+  /* The sheet is the only thing on the paper. */
+  body > *:not(main),
+  main > *:not(.certificate-page),
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .certificate-page {
+    max-width: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .certificate {
+    width: 100%;
+    box-shadow: none;
+    border-radius: 0;
+    break-inside: avoid;
+  }
+}

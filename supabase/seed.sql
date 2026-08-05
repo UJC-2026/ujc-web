@@ -737,3 +737,23 @@ values
   ('33333333-3333-4333-8333-333333333333', 25, 'cbt'),
   ('11111111-1111-4111-8111-111111111111', 120, 'forum')
 on conflict do nothing;
+
+-- Absensi kegiatan. Kode untuk acara yang sudah lewat sengaja dibiarkan
+-- terbuka lama supaya panel panitia dan e-sertifikat bisa dicoba kapan saja
+-- di lingkungan pengembangan.
+insert into event_checkin_codes (event_id, code, opens_at, closes_at)
+values
+  ('e0000000-0000-4000-8000-000000000004', 'HALALBIHALAL',
+   now() - interval '90 days', now() + interval '365 days'),
+  ('e0000000-0000-4000-8000-000000000002', 'JLPTN3',
+   now() - interval '1 day', now() + interval '30 days')
+on conflict (event_id) do nothing;
+
+-- Kehadiran contoh; trigger 0027 yang menerbitkan sertifikatnya.
+insert into event_checkins (event_id, user_id, method)
+values
+  ('e0000000-0000-4000-8000-000000000004',
+   '33333333-3333-4333-8333-333333333333', 'qr'),
+  ('e0000000-0000-4000-8000-000000000004',
+   '22222222-2222-4222-8222-222222222222', 'kode')
+on conflict (event_id, user_id) do nothing;

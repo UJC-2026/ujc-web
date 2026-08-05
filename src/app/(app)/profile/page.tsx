@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Award } from "lucide-react";
 import { requireProfile } from "@/lib/auth/session";
+import { getMyCertificates } from "@/lib/events/checkin";
 import { profileCompletion } from "@/lib/validations/profile";
+import { formatDateID } from "@/lib/format";
 import { ProfileForm } from "@/components/profile/profile-form";
 import { Avatar } from "@/components/ui/avatar";
 import { RoleBadge } from "@/components/ui/badge";
@@ -12,6 +16,7 @@ export const metadata: Metadata = {
 export default async function ProfilePage() {
   const profile = await requireProfile();
   const completion = profileCompletion(profile);
+  const certificates = await getMyCertificates(profile.id);
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-12">
@@ -58,6 +63,39 @@ export default async function ProfilePage() {
           <ProfileForm profile={profile} />
         </div>
       </div>
+
+      {certificates.length > 0 && (
+        <div className="mt-8 rounded-panel border border-border bg-surface p-6 sm:p-7">
+          <h2 className="rule-gold text-h3 text-foreground">E-sertifikat</h2>
+          <p className="mt-5 text-caption text-muted-foreground">
+            Terbit otomatis setiap kali kehadiranmu di sebuah kegiatan tercatat.
+          </p>
+
+          <ul className="mt-5 space-y-2">
+            {certificates.map((certificate) => (
+              <li key={certificate.certificate_number}>
+                <Link
+                  href={`/events/${certificate.event?.id}/sertifikat`}
+                  className="flex flex-wrap items-center gap-3 rounded-card border border-border px-4 py-3 transition-colors hover:border-accent"
+                >
+                  <Award className="size-5 shrink-0 text-accent" aria-hidden />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-body text-foreground">
+                      {certificate.event?.title ?? "Kegiatan UJC"}
+                    </span>
+                    <span className="block font-mono text-caption text-muted-foreground">
+                      {certificate.certificate_number}
+                    </span>
+                  </span>
+                  <span className="text-caption text-muted-foreground">
+                    {formatDateID(certificate.issued_at)}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

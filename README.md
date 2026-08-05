@@ -89,10 +89,10 @@ Forum (thread bertingkat, vote, moderasi otomatis) · Kegiatan + RSVP ·
 Resource · Marketplace (jual-beli, lelang dengan countdown, barang gratis) ·
 Latihan CBT (JLPT/SSW, timer, penilaian di server) · Papan lowongan ·
 Mentorship Senpai-Kouhai · UJC Peduli · Blog · Creative Hub · Workshop &
-webinar · Direktori bisnis anggota · Asisten AI (kuota harian) · Pencarian
-global (Ctrl+K) · Pesan langsung · Direktori anggota · Peta sebaran ·
-Struktur organisasi · Galeri · Notifikasi · Panel admin · Dashboard pengurus
-12 panel · PWA offline
+webinar · QR check-in & e-sertifikat · Direktori bisnis anggota · Asisten AI
+(kuota harian) · Pencarian global (Ctrl+K) · Pesan langsung · Direktori
+anggota · Peta sebaran · Struktur organisasi · Galeri · Notifikasi · Panel
+admin · Dashboard pengurus 12 panel · PWA offline
 
 ## Catatan implementasi
 
@@ -137,6 +137,22 @@ tautan, dan thumbnail YouTube ikut tampil karena disajikan publik per video id
 (`0026`). Platform dan video id diturunkan trigger dari URL-nya, tidak pernah
 dipercaya dari klien.
 
+**Kolom rahasia tidak boleh menumpang di baris yang publik.**
+`events.checkin_code` sempat ada sejak `0002`, padahal policy `event publik`
+memberi `select` atas *seluruh kolom* ke siapa pun. Kode absensi yang bisa
+dibaca semua orang bukan kode absensi. `0027` memindahkannya ke tabel
+`event_checkin_codes` sendiri, bukan sekadar `revoke` per kolom — semua query
+event memakai `select *`, jadi mencabut satu kolom malah membuat semuanya
+gagal dengan "permission denied for column".
+
+**`or is_pengurus()` di policy berarti query "milik saya" wajib difilter
+sendiri.** Policy `event_checkins` dan `certificates` berbunyi
+`user_id = auth.uid() or is_pengurus()`. Query tanpa `.eq("user_id", ...)`
+karena mengira "RLS sudah menyaring" akan mengembalikan baris orang lain
+begitu pembacanya pengurus — sempat membuat setiap pengurus dianggap sudah
+hadir, lengkap dengan nomor sertifikat milik anggota lain. RLS di sini adalah
+batas atas, bukan filter.
+
 ## Pengujian
 
 Tiap modul diverifikasi terhadap instance Supabase lokal yang sungguhan, bukan
@@ -146,6 +162,20 @@ lain `GRANT` tabel yang tidak pernah diberikan (seluruh query gagal), policy
 insert yang membiarkan anggota melewati moderasi, papan internal yang bisa
 dimasuki anggota mana pun, dan notifikasi yang selalu ditolak sehingga tidak
 pernah ada satu pun yang dibuat.
+
+Verifikasi UI dijalankan terhadap `next build && next start`, bukan `next dev`.
+Di mesin pengembangan yang dipakai, HMR WebSocket dev server gagal handshake
+sehingga halaman tidak pernah ter-hydrate: setiap blok `Reveal` tersangkut di
+`opacity: 0` dan Ctrl+K mati — mirip sekali dengan bug UI besar, padahal build
+produksi normal sepenuhnya.
+
+ID contoh di `seed.sql` memakai bentuk UUID v4 yang sah
+(`…-4000-8000-…`), bukan `…-0000-0000-…` seperti sebelumnya. `z.uuid()` pada
+Zod 4 memeriksa bit versi/varian sesuai RFC 9562, jadi ID lama ditolak setiap
+server action yang memvalidasinya — RSVP dan absensi sama-sama gagal dengan
+"Invalid UUID" hanya di lingkungan lokal, sementara data produksi yang lahir
+dari `gen_random_uuid()` baik-baik saja. `instance_id` milik GoTrue tetap UUID
+nol; itu memang harus begitu.
 
 ## Belum dikerjakan
 

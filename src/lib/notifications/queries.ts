@@ -40,6 +40,7 @@ export const NOTIFICATION_TYPES = {
   mentorship_request: "Permintaan bimbingan masuk",
   mentorship_answer: "Jawaban atas permintaan bimbinganmu",
   papan_balasan: "Balasan di papan internal",
+  sertifikat_terbit: "E-sertifikat kehadiran terbit",
 } as const;
 
 export type NotificationType = keyof typeof NOTIFICATION_TYPES;
