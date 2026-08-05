@@ -88,9 +88,11 @@ update profiles set role = 'admin' where id = '<user-uuid>';
 Forum (thread bertingkat, vote, moderasi otomatis) · Kegiatan + RSVP ·
 Resource · Marketplace (jual-beli, lelang dengan countdown, barang gratis) ·
 Latihan CBT (JLPT/SSW, timer, penilaian di server) · Papan lowongan ·
-Mentorship Senpai-Kouhai · UJC Peduli · Blog · Pesan langsung · Direktori
-anggota · Peta sebaran · Struktur organisasi · Galeri · Notifikasi ·
-Panel admin · Dashboard pengurus 12 panel · PWA offline
+Mentorship Senpai-Kouhai · UJC Peduli · Blog · Creative Hub · Workshop &
+webinar · Direktori bisnis anggota · Asisten AI (kuota harian) · Pencarian
+global (Ctrl+K) · Pesan langsung · Direktori anggota · Peta sebaran ·
+Struktur organisasi · Galeri · Notifikasi · Panel admin · Dashboard pengurus
+12 panel · PWA offline
 
 ## Catatan implementasi
 
@@ -128,6 +130,13 @@ segment anak, skeleton daftar ditaruh di route group `(index)`.
 tidak punya identitas untuk mengevaluasi RLS dan diam-diam tidak mengirim apa
 pun — terlihat seperti RLS bekerja, padahal pengirimannya yang mati.
 
+**Creative Hub memakai kurasi tautan, bukan feed otomatis.** Feed YouTube,
+Instagram, dan Facebook menuntut API key per platform beserta app review yang
+tidak bisa diselesaikan dari sisi kode. Yang dikirim: anggota menempelkan
+tautan, dan thumbnail YouTube ikut tampil karena disajikan publik per video id
+(`0026`). Platform dan video id diturunkan trigger dari URL-nya, tidak pernah
+dipercaya dari klien.
+
 ## Pengujian
 
 Tiap modul diverifikasi terhadap instance Supabase lokal yang sungguhan, bukan
@@ -142,7 +151,9 @@ pernah ada satu pun yang dibuat.
 
 Web Push · i18n Bahasa Jepang · badge & pencapaian · unggah dokumen di panel
 Administrasi · pembersihan berkas lama di Storage saat gambar diganti ·
-penutupan lelang otomatis · notifikasi email
+penutupan lelang otomatis · notifikasi email · feed otomatis media sosial
+(butuh API key + app review tiap platform; Creative Hub memakai kurasi tautan
+sebagai gantinya)
 
 ## Lisensi
 
