@@ -91,8 +91,9 @@ Latihan CBT (JLPT/SSW, timer, penilaian di server) · Papan lowongan ·
 Mentorship Senpai-Kouhai · UJC Peduli · Blog · Creative Hub · Workshop &
 webinar · QR check-in & e-sertifikat · Direktori bisnis anggota · Asisten AI
 (kuota harian) · Pencarian global (Ctrl+K) · Pesan langsung · Direktori
-anggota · Peta sebaran · Struktur organisasi · Galeri · Notifikasi · Ekspor &
-hapus data mandiri · Panel admin · Dashboard pengurus 12 panel · PWA offline
+anggota · Peta sebaran · Struktur organisasi · Galeri · Notifikasi · Poin,
+level & lencana · Ekspor & hapus data mandiri · Panel admin · Dashboard
+pengurus 12 panel · PWA offline
 
 ## Catatan implementasi
 
@@ -153,6 +154,16 @@ begitu pembacanya pengurus — sempat membuat setiap pengurus dianggap sudah
 hadir, lengkap dengan nomor sertifikat milik anggota lain. RLS di sini adalah
 batas atas, bukan filter.
 
+**Lencana diturunkan ulang, bukan dihitung maju.** `sync_badges()` (`0030`)
+menanyakan "sekarang anggota ini berhak apa saja" lalu memasukkan yang belum
+ada, sehingga aman dipanggil berapa kali pun — dan itu dipakai: pemicunya
+digantung di `award_points()`, satu kait untuk semua kriteria, bukan trigger
+per tabel yang harus diingat tiap kali sumber poin baru ditambahkan. Kriteria
+ditulis sebagai SQL di dalam fungsi, bukan sebagai baris data: mesin aturan
+berbasis data berarti menciptakan bahasa kecil beserta penafsirnya untuk
+menyatakan selusin ambang yang sudah jelas sebagai `count(*) >= 10`. Tabel
+katalognya hanya memuat tampilan — nama, deskripsi, ikon, tingkat.
+
 **Lelang ditutup saat halaman dibuka, bukan oleh penjadwal.** Tidak ada
 trigger yang menyala saat sebuah timestamp lewat, jadi harus ada yang
 bertanya. `close_due_auctions()` (`0029`) bersifat idempoten dan tanpa
@@ -205,12 +216,12 @@ nol; itu memang harus begitu.
 
 ## Belum dikerjakan
 
-Web Push · i18n Bahasa Jepang · badge & pencapaian · unggah dokumen di panel
-Administrasi · pembersihan berkas lama di Storage saat gambar diganti ·
-notifikasi email · section partner di beranda (tabel `partners` sudah ada,
-belum dipakai) · reminder akademik akhir pekan · feed otomatis media sosial
-(butuh API key + app review tiap platform; Creative Hub memakai kurasi tautan
-sebagai gantinya)
+Web Push · i18n Bahasa Jepang · unggah dokumen di panel Administrasi ·
+pembersihan berkas lama di Storage saat gambar diganti · notifikasi email ·
+section partner di beranda (tabel `partners` sudah ada, belum dipakai) ·
+reminder akademik akhir pekan · feed otomatis media sosial (butuh API key +
+app review tiap platform; Creative Hub memakai kurasi tautan sebagai
+gantinya)
 
 ## Lisensi
 

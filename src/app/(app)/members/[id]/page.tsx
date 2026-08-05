@@ -16,7 +16,9 @@ import {
   getMemberProfile,
   getMemberThreads,
 } from "@/lib/members/queries";
+import { getMemberBadges } from "@/lib/badges/queries";
 import { getCurrentProfile } from "@/lib/auth/session";
+import { BadgeGrid } from "@/components/badges/badge-grid";
 import { openConversation } from "@/app/(app)/messages/actions";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge, RoleBadge } from "@/components/ui/badge";
@@ -58,9 +60,10 @@ export default async function MemberPage({ params }: PageProps) {
   // RLS hides members who made their profile private, so a miss is a 404.
   if (!member) notFound();
 
-  const [threads, listings] = await Promise.all([
+  const [threads, listings, badges] = await Promise.all([
     getMemberThreads(member.id),
     getMemberListings(member.id),
+    getMemberBadges(member.id),
   ]);
 
   const isSelf = viewer?.id === member.id;
@@ -179,6 +182,13 @@ export default async function MemberPage({ params }: PageProps) {
           </div>
         </div>
       </dl>
+
+      {badges.length > 0 && (
+        <section className="mt-10">
+          <h2 className="rule-gold text-h3 text-foreground">Lencana</h2>
+          <BadgeGrid badges={badges} className="mt-6" />
+        </section>
+      )}
 
       {threads.length > 0 && (
         <section className="mt-10">

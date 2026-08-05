@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Award, ShieldCheck } from "lucide-react";
 import { requireProfile } from "@/lib/auth/session";
+import { getMemberBadges, getBadgeCatalogue } from "@/lib/badges/queries";
 import { getMyCertificates } from "@/lib/events/checkin";
+import { BadgeGrid } from "@/components/badges/badge-grid";
 import { profileCompletion } from "@/lib/validations/profile";
 import { formatDateID } from "@/lib/format";
 import { ProfileForm } from "@/components/profile/profile-form";
@@ -16,7 +18,12 @@ export const metadata: Metadata = {
 export default async function ProfilePage() {
   const profile = await requireProfile();
   const completion = profileCompletion(profile);
-  const certificates = await getMyCertificates(profile.id);
+
+  const [certificates, badges, catalogue] = await Promise.all([
+    getMyCertificates(profile.id),
+    getMemberBadges(profile.id),
+    getBadgeCatalogue(),
+  ]);
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-12">
@@ -62,6 +69,17 @@ export default async function ProfilePage() {
         <div className="mt-7">
           <ProfileForm profile={profile} />
         </div>
+      </div>
+
+      <div className="mt-8 rounded-panel border border-border bg-surface p-6 sm:p-7">
+        <h2 className="rule-gold text-h3 text-foreground">Lencana</h2>
+        <p className="mt-5 text-caption text-muted-foreground">
+          {badges.length > 0
+            ? `${badges.length} dari ${catalogue.length} lencana terkumpul.`
+            : `Belum ada lencana. Ada ${catalogue.length} yang bisa dikumpulkan dari aktivitas di forum, CBT, blog, kegiatan, dan UJC Peduli.`}
+        </p>
+
+        {badges.length > 0 && <BadgeGrid badges={badges} className="mt-5" />}
       </div>
 
       {certificates.length > 0 && (

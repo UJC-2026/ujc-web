@@ -43,6 +43,7 @@ export const NOTIFICATION_TYPES = {
   sertifikat_terbit: "E-sertifikat kehadiran terbit",
   lelang_menang: "Kamu memenangkan lelang",
   lelang_selesai: "Lelang yang kamu buka ditutup",
+  lencana_baru: "Lencana baru terkumpul",
 } as const;
 
 export type NotificationType = keyof typeof NOTIFICATION_TYPES;
