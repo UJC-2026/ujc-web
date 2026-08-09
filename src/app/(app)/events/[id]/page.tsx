@@ -13,7 +13,8 @@ import {
 import { getCurrentProfile, getPengurusRoles } from "@/lib/auth/session";
 import { isFull, isUpcoming } from "@/lib/events/types";
 import { formatDateTimeID, relativeTime } from "@/lib/format";
-import { JsonLd, eventSchema } from "@/lib/seo/json-ld";
+import { JsonLd } from "@/lib/seo/json-ld";
+import { eventSchema } from "@/lib/seo/schema";
 import { env } from "@/lib/env";
 import { RsvpControls } from "@/components/events/rsvp-controls";
 import { CheckinForm } from "@/components/events/checkin-form";

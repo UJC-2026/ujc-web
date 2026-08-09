@@ -19,7 +19,8 @@ import { FeaturedGallery } from "@/components/home/featured-gallery";
 import { ProfileVideo } from "@/components/home/profile-video";
 import { getPhotos } from "@/lib/gallery/queries";
 import { getPartners, getSiteSetting, youtubeId } from "@/lib/home/queries";
-import { JsonLd, organizationSchema } from "@/lib/seo/json-ld";
+import { JsonLd } from "@/lib/seo/json-ld";
+import { organizationSchema } from "@/lib/seo/schema";
 
 export const revalidate = 300;
 
