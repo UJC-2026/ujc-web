@@ -115,6 +115,11 @@ begin
     and action = v_action
     and created_at < now() - v_window;
 
+  -- Counting and inserting are two statements, so two requests arriving
+  -- together can both read the same total and both pass. That is left alone:
+  -- the cost is one extra thread on a burst, and closing it means taking a
+  -- lock per post on the hot path of every forum reply. This is a spam brake,
+  -- not an accounting ledger.
   select count(*) into v_used
   from rate_limit_events
   where user_id = v_user and action = v_action;
