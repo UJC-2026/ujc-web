@@ -227,6 +227,31 @@ anggota adalah pesan ini (`actionError`, SQLSTATE `54000`): ia menyebut angka
 batasnya dan kapan bisa mencoba lagi, sedangkan "coba lagi sebentar lagi" akan
 salah persis di layar tempat mencoba lagi tidak akan berhasil.
 
+**Gambar lama dihapus oleh pemiliknya sendiri, bukan oleh penjadwal.**
+Mengganti avatar dulu meninggalkan berkas lamanya di bucket selamanya — bukan
+cuma tagihan penyimpanan, tapi gambar yang dikira sudah dihapus tetap bisa
+diambil siapa pun yang menyimpan URL-nya, karena bucket-nya publik. Postgres
+tidak bisa memanggil Storage API, jadi pembagiannya: database yang menyadari
+sebuah berkas berhenti dirujuk (`0035`), aplikasi yang menghapusnya. Sapuannya
+dibatasi pada folder `{user_id}` milik pemanggil — persis yang diizinkan policy
+bucket — sehingga tiap anggota membereskan miliknya sendiri saat menyimpan
+berikutnya, tanpa penjadwal dan tanpa service key.
+
+Empat hal yang menjaganya, diurut dari yang paling merusak kalau tidak ada:
+hanya URL yang menunjuk storage project ini yang pernah masuk antrean (tautan
+eksternal terurai jadi nol baris); antrean hanya menerima nilai yang **sudah
+pernah** tersimpan di sebuah baris, jadi berkas yang baru diunggah di tab lain
+dan belum disimpan tidak mungkin ikut terhapus; tidak ada yang dihapus selama
+masih ada baris yang merujuknya, diperiksa ulang saat menyapu — itulah yang
+membuat pergantian A → B → A aman; dan pemeriksaan itu membaca semua baris
+tanpa RLS, karena kalau dibaca sebagai anggota biasa, rujukan yang tersembunyi
+darinya akan terlihat seperti tidak ada rujukan sama sekali.
+
+Dua kebocoran yang belum tertutup: berkas yang diunggah tapi tidak pernah
+dilekatkan ke baris mana pun tidak terlihat di sini secara desain, dan berkas
+milik akun yang dihapus tetap tertinggal — barisnya masuk antrean, tapi
+satu-satunya orang yang berhak menghapusnya sudah tidak ada.
+
 **Arsip dokumen menyimpan jalur objek, bukan URL.** Bucket `documents` privat
 (`0019`), jadi tidak ada URL publik yang bisa disusun untuknya — menyimpan
 tautan berarti menyimpan tautan mati. Yang dicatat di `documents.file_url`
@@ -297,8 +322,8 @@ nol; itu memang harus begitu.
 
 ## Belum dikerjakan
 
-Web Push · i18n Bahasa Jepang · pembersihan berkas lama di Storage saat gambar
-diganti · notifikasi email · feed otomatis media sosial (butuh API key +
+Web Push · i18n Bahasa Jepang · notifikasi email · pembersihan berkas milik
+akun yang sudah dihapus (butuh service role) · feed otomatis media sosial (butuh API key +
 app review tiap platform; Creative Hub memakai kurasi tautan sebagai
 gantinya)
 

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { sweepStorageOrphans } from "@/lib/storage/sweep";
 
 export type GalleryState = { error?: string; success?: string };
 
@@ -81,6 +82,12 @@ export async function deletePhoto(formData: FormData): Promise<void> {
   const supabase = await createClient();
   // RLS allows the uploader (own, unfeatured) or pengurus.
   await supabase.from("gallery_photos").delete().eq("id", photoId);
+
+  // Deleting the row is what makes the file an orphan. A pengurus removing
+  // someone else's photo only clears their own queue entries — the bucket
+  // policy would refuse the rest anyway — so the uploader's next save
+  // finishes the job.
+  await sweepStorageOrphans(supabase);
 
   revalidatePath("/gallery");
   revalidatePath("/");

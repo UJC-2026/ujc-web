@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { sweepStorageOrphans } from "@/lib/storage/sweep";
 import { profileSchema } from "@/lib/validations/profile";
 
 export type ProfileState = { error?: string; success?: string };
@@ -48,6 +49,10 @@ export async function updateProfile(
           : "Profil gagal disimpan. Coba lagi sebentar lagi.",
     };
   }
+
+  // The replaced avatar is queued by a trigger (0035); this is what actually
+  // removes it from the bucket.
+  await sweepStorageOrphans(supabase);
 
   revalidatePath("/profile");
   revalidatePath("/dashboard");
