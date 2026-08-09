@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  divisionOptions,
   scopeToDivision,
   searchMembers,
   type OrgMember,
@@ -103,5 +104,35 @@ describe("searchMembers", () => {
 
   it("returns nothing for an empty term rather than everyone", () => {
     expect(searchMembers(tree, "   ")).toEqual([]);
+  });
+});
+
+describe("divisionOptions", () => {
+  // UJC's real chart: one Ketua Umum with the divisions beneath it. Offering
+  // the roots would offer a single chip meaning "everything".
+  it("descends past a lone root to the divisions under it", () => {
+    const chart = [
+      position("ketua", "Ketua Umum", [], [
+        position("media", "Divisi Media"),
+        position("pendidikan", "Divisi Pendidikan"),
+      ]),
+    ];
+
+    expect(divisionOptions(chart).map((n) => n.name)).toEqual([
+      "Divisi Media",
+      "Divisi Pendidikan",
+    ]);
+  });
+
+  it("uses the roots when a chart has several", () => {
+    expect(divisionOptions(tree).map((n) => n.name)).toEqual([
+      "Ketua Umum",
+      "Divisi Media",
+    ]);
+  });
+
+  it("keeps a lone childless root rather than offering nothing", () => {
+    const chart = [position("solo", "Ketua Umum")];
+    expect(divisionOptions(chart).map((n) => n.name)).toEqual(["Ketua Umum"]);
   });
 });

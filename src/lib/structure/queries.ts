@@ -165,6 +165,20 @@ export async function getPosition(id: string): Promise<{
 }
 
 /**
+ * The units worth offering as filter chips.
+ *
+ * UJC's chart is a single root — Ketua Umum — with the divisions hanging off
+ * it, so filtering by the roots offers exactly one choice, and that choice is
+ * "everything". The divisions are one level down. A chart drawn with several
+ * roots instead gets those, which is the same intent either way: the level
+ * that actually branches.
+ */
+export function divisionOptions(tree: OrgPosition[]): OrgPosition[] {
+  if (tree.length === 1 && tree[0].children.length > 0) return tree[0].children;
+  return tree;
+}
+
+/**
  * Narrows the tree to one branch. Returns an empty tree for an unknown id
  * rather than silently falling back to everything — a filter chip that
  * quietly stops filtering is worse than one that visibly matches nothing.

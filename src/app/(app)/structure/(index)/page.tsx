@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Network, SearchX } from "lucide-react";
 import {
+  divisionOptions,
   getPeriods,
   getStructure,
   scopeToDivision,
@@ -115,7 +116,7 @@ export default async function StructurePage({
             <Link href={withParams({ divisi: undefined })} className={chip(!divisi)}>
               Semua divisi
             </Link>
-            {tree.map((node) => (
+            {divisionOptions(tree).map((node) => (
               <Link
                 key={node.id}
                 href={withParams({ divisi: node.id })}
