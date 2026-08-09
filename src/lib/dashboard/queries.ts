@@ -252,8 +252,11 @@ export type OrgDocument = {
   id: string;
   title: string;
   category: string | null;
+  /** A signed, short-lived URL by the time it reaches a component. */
   file_url: string;
   created_at: string;
+  /** The row survived but its file did not — shown as an unclickable entry. */
+  isMissing?: boolean;
 };
 
 export async function getAdministrasi(): Promise<{
@@ -279,8 +282,52 @@ export async function getAdministrasi(): Promise<{
 
   return {
     notes: (notes.data as MeetingNote[] | null) ?? [],
-    documents: (documents.data as OrgDocument[] | null) ?? [],
+    documents: await signDocuments(
+      supabase,
+      (documents.data as OrgDocument[] | null) ?? [],
+    ),
   };
+}
+
+/**
+ * Turns stored object keys into links that will actually open.
+ *
+ * The `documents` bucket is private, so a key is not a URL and cannot be made
+ * into one by string concatenation — it has to be signed, and the signature
+ * expires. Ten minutes is enough to click through from the panel and short
+ * enough that a link pasted elsewhere stops working.
+ *
+ * Rows written before uploads existed hold a plain external URL. Those are
+ * passed through untouched rather than migrated: signing something that was
+ * never in the bucket would only replace a working link with a broken one.
+ */
+async function signDocuments(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  rows: OrgDocument[],
+): Promise<OrgDocument[]> {
+  const keys = rows
+    .map((row) => row.file_url)
+    .filter((value) => !/^https?:\/\//i.test(value));
+
+  if (keys.length === 0) return rows;
+
+  const { data } = await supabase.storage
+    .from("documents")
+    .createSignedUrls(keys, 600);
+
+  const signed = new Map(
+    (data ?? [])
+      .filter((entry) => entry.signedUrl)
+      .map((entry) => [entry.path as string, entry.signedUrl]),
+  );
+
+  return rows.map((row) => ({
+    ...row,
+    // A key with no signature means the object is gone from the bucket. The
+    // row keeps its title so the archive still shows what was filed.
+    file_url: signed.get(row.file_url) ?? row.file_url,
+    isMissing: !/^https?:\/\//i.test(row.file_url) && !signed.has(row.file_url),
+  }));
 }
 
 export type ContentSlot = {

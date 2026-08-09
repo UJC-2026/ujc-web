@@ -7,11 +7,13 @@ import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Textarea } from "@/components/ui/input";
 import { CollapsibleForm } from "./collapsible-form";
+import { DocumentUpload } from "@/components/ui/document-upload";
 import {
   createBoardPost,
   createCalendarEntry,
   createCashEntry,
   createContentSlot,
+  createDocument,
   createMeetingNote,
   createProgram,
   createTask,
@@ -608,6 +610,47 @@ function AcademicReminderFields({
       </Field>
 
       <SubmitButton label="Simpan teks reminder" />
+    </form>
+  );
+}
+
+export function DocumentForm() {
+  return (
+    <CollapsibleForm openLabel="Unggah dokumen" title="Arsipkan dokumen">
+      {(close) => <DocumentFields close={close} />}
+    </CollapsibleForm>
+  );
+}
+
+function DocumentFields({ close }: { close: () => void }) {
+  const { error, handle } = useFormAction(createDocument, close);
+  // Prefilled from the chosen file so the common case is one click, while a
+  // scanned "IMG_4821" can still be given a name someone will recognise.
+  const [title, setTitle] = useState("");
+
+  return (
+    <form action={handle} className="space-y-5">
+      <ErrorNote message={error} />
+
+      <DocumentUpload name="path" onFileName={setTitle} />
+
+      <Field label="Judul dokumen" htmlFor="docTitle">
+        <Input
+          id="docTitle"
+          name="title"
+          required
+          minLength={3}
+          maxLength={160}
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+        />
+      </Field>
+
+      <Field label="Kategori" htmlFor="docCategory" hint="Opsional, misalnya “Surat keluar” atau “Notulen”.">
+        <Input id="docCategory" name="category" maxLength={60} />
+      </Field>
+
+      <SubmitButton label="Arsipkan dokumen" />
     </form>
   );
 }

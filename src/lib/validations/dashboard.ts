@@ -192,3 +192,29 @@ export const academicReminderSchema = z.object({
       "Tautan harus jalur internal yang diawali “/”, misalnya /cbt.",
     ),
 });
+
+/**
+ * An organisation document. `path` is a key inside the private `documents`
+ * bucket, never a URL: the bucket is not public, so anything stored as a link
+ * would be dead when someone clicked it.
+ *
+ * The shape is checked because the value arrives from the browser. The storage
+ * policy already refuses a write outside the uploader's own folder, but this
+ * row is what the archive renders, and a path that never matched an upload
+ * would sit there as a permanently broken entry.
+ */
+export const documentSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(3, "Judul dokumen minimal 3 karakter.")
+    .max(160, "Judul maksimal 160 karakter."),
+  category: optionalText,
+  path: z
+    .string()
+    .trim()
+    .refine(
+      (value) => /^[0-9a-f-]{36}\/[0-9a-z-]+\.[a-z0-9]+$/i.test(value),
+      "Pilih berkas yang akan diunggah dulu.",
+    ),
+});

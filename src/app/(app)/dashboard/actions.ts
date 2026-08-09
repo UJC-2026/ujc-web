@@ -10,6 +10,7 @@ import {
   calendarEntrySchema,
   cashSchema,
   contentSlotSchema,
+  documentSchema,
   noteSchema,
   programSchema,
   taskSchema,
@@ -411,4 +412,49 @@ export async function saveAcademicReminder(
 
   revalidatePath("/dashboard");
   return { success: "Teks reminder akhir pekan tersimpan." };
+}
+
+/**
+ * Files an uploaded document into the organisation archive.
+ *
+ * The browser has already put the file in the private bucket under its own
+ * user id — that is what the storage policy enforces. This records where it
+ * landed. RLS on `documents` is what decides whether this pengurus may file
+ * anything at all.
+ */
+export async function createDocument(
+  _prev: DashboardState,
+  formData: FormData,
+): Promise<DashboardState> {
+  const parsed = documentSchema.safeParse({
+    title: formData.get("title"),
+    category: formData.get("category"),
+    path: formData.get("path"),
+  });
+
+  if (!parsed.success) return { error: parsed.error.issues[0].message };
+
+  const { supabase, user, roles, isAdmin } = await currentPengurus();
+  if (!user) return { error: "Sesi kamu sudah berakhir. Coba masuk lagi." };
+  if (roles.length === 0 && !isAdmin) {
+    return { error: "Hanya pengurus yang bisa mengarsipkan dokumen." };
+  }
+
+  const { error } = await supabase.from("documents").insert({
+    title: parsed.data.title,
+    category: parsed.data.category,
+    file_url: parsed.data.path,
+    uploaded_by: user.id,
+  });
+
+  if (error) return { error: "Dokumen gagal diarsipkan. Coba lagi." };
+
+  await supabase.rpc("log_audit", {
+    p_action: "dokumen.unggah",
+    p_target_type: "document",
+    p_metadata: { title: parsed.data.title, category: parsed.data.category },
+  });
+
+  revalidatePath("/dashboard");
+  return { success: "Dokumen masuk arsip." };
 }

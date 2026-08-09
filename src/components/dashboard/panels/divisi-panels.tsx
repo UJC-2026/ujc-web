@@ -10,7 +10,12 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatDateID, formatDateTimeID, relativeTime } from "@/lib/format";
-import { NoteForm, ContentSlotForm, AcademicReminderForm } from "../forms";
+import {
+  NoteForm,
+  ContentSlotForm,
+  AcademicReminderForm,
+  DocumentForm,
+} from "../forms";
 import type {
   AcademicReminder,
   Announcement,
@@ -95,6 +100,7 @@ export function AdministrasiPanel({
 
       <section className="mt-8">
         <SectionHeading>Arsip dokumen</SectionHeading>
+        {canWrite && <DocumentForm />}
 
         {documents.length === 0 ? (
           <div className="mt-3">
@@ -113,17 +119,26 @@ export function AdministrasiPanel({
               >
                 <FileText className="size-4 shrink-0 text-primary" aria-hidden />
                 <div className="min-w-0 flex-1">
-                  <a
-                    href={doc.file_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="truncate text-body text-foreground transition-colors hover:text-primary"
-                  >
-                    {doc.title}
-                  </a>
+                  {doc.isMissing ? (
+                    // The row outlived its file. Saying so beats a link that
+                    // opens an error page.
+                    <p className="truncate text-body text-muted-foreground line-through">
+                      {doc.title}
+                    </p>
+                  ) : (
+                    <a
+                      href={doc.file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="truncate text-body text-foreground transition-colors hover:text-primary"
+                    >
+                      {doc.title}
+                    </a>
+                  )}
                   <p className="text-caption text-muted-foreground">
-                    {doc.category ?? "Tanpa kategori"} ·{" "}
-                    {relativeTime(doc.created_at)}
+                    {doc.isMissing
+                      ? "Berkasnya tidak ada lagi di penyimpanan"
+                      : `${doc.category ?? "Tanpa kategori"} · ${relativeTime(doc.created_at)}`}
                   </p>
                 </div>
               </li>

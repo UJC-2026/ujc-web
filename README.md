@@ -227,6 +227,17 @@ anggota adalah pesan ini (`actionError`, SQLSTATE `54000`): ia menyebut angka
 batasnya dan kapan bisa mencoba lagi, sedangkan "coba lagi sebentar lagi" akan
 salah persis di layar tempat mencoba lagi tidak akan berhasil.
 
+**Arsip dokumen menyimpan jalur objek, bukan URL.** Bucket `documents` privat
+(`0019`), jadi tidak ada URL publik yang bisa disusun untuknya — menyimpan
+tautan berarti menyimpan tautan mati. Yang dicatat di `documents.file_url`
+adalah kunci objeknya, lalu ditandatangani jadi URL berumur 10 menit saat
+panel Administrasi dirender: cukup untuk diklik, terlalu pendek untuk berguna
+kalau ditempel di tempat lain. Baris lama yang berisi URL eksternal dilewatkan
+apa adanya — menandatangani sesuatu yang tidak pernah ada di bucket hanya akan
+menukar tautan yang hidup dengan yang mati. Kunci yang tidak dapat tandatangan
+berarti berkasnya sudah hilang; barisnya tetap tampil dengan judulnya, tanpa
+tautan, daripada mengantar orang ke halaman error.
+
 **Reminder akhir pekan diklaim saat anggota datang, bukan dijadwalkan.**
 `claim_academic_reminder()` (`0033`) mengikuti pola `close_due_auctions()`:
 tidak ada yang menyala di Postgres ketika sebuah tanggal tiba, jadi
@@ -286,9 +297,8 @@ nol; itu memang harus begitu.
 
 ## Belum dikerjakan
 
-Web Push · i18n Bahasa Jepang · unggah dokumen di panel Administrasi ·
-pembersihan berkas lama di Storage saat gambar diganti · notifikasi email ·
-feed otomatis media sosial (butuh API key +
+Web Push · i18n Bahasa Jepang · pembersihan berkas lama di Storage saat gambar
+diganti · notifikasi email · feed otomatis media sosial (butuh API key +
 app review tiap platform; Creative Hub memakai kurasi tautan sebagai
 gantinya)
 
