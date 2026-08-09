@@ -95,14 +95,26 @@ export function OgCard({
           justifyContent: "space-between",
         }}
       >
-        <div style={{ display: "flex", fontSize: 28, color: BLUE_100 }}>
-          {meta ? clamp(meta, 70) : ""}
-        </div>
-
         <div
           style={{
             display: "flex",
+            flexShrink: 1,
+            marginRight: 40,
+            fontSize: 28,
+            color: BLUE_100,
+          }}
+        >
+          {meta ? clamp(meta, 64) : ""}
+        </div>
+
+        {/* Never let a long date-and-place line wrap the wordmark: it is the
+            one element that has to stay a single unit on every card. */}
+        <div
+          style={{
+            display: "flex",
+            flexShrink: 0,
             alignItems: "center",
+            whiteSpace: "nowrap",
             fontSize: 26,
             color: BLUE_100,
           }}

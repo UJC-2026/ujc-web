@@ -48,7 +48,12 @@ export async function generateMetadata({
       type: "article",
       title: event.title,
       description,
-      images: event.cover_url ? [event.cover_url] : undefined,
+      // Spread, not `images: … : undefined`. Next treats the key being
+      // present as this function taking charge of the image and skips
+      // opengraph-image.tsx entirely — so an event without a cover shipped
+      // with no og:image at all. Leaving the key out lets the generated
+      // card fill in; a real cover still wins over it.
+      ...(event.cover_url ? { images: [event.cover_url] } : {}),
     },
   };
 }

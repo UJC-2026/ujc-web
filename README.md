@@ -123,6 +123,15 @@ klien; peta menggambar titik pusat prefektur yang dibawa aplikasi sendiri
 bergantung pada `state.success` tidak berjalan lagi bila pesan suksesnya sama
 persis, sehingga submit kedua tidak mereset form.
 
+**`images: undefined` di `generateMetadata` mematikan `opengraph-image.tsx`.**
+Next membaca *kehadiran* kunci `images` sebagai tanda halaman mengambil alih
+gambarnya, meski nilainya `undefined` — sehingga event tanpa cover terkirim
+tanpa `og:image` sama sekali, padahal file kartunya ada dan route-nya
+terdaftar. Kuncinya harus benar-benar tidak ada (`...(cover ? { images } :
+{})`). Ini tidak terlihat dari `build` maupun `tsc`; ketahuannya hanya dengan
+membandingkan `<head>` halaman event terhadap halaman thread forum, yang
+`generateMetadata`-nya memang tidak pernah menyebut `images`.
+
 **`loading.tsx` mengubah status 404 jadi 200.** Streaming mengirim header
 sebelum `notFound()` sempat jalan. Karena `loading.tsx` juga berlaku untuk
 segment anak, skeleton daftar ditaruh di route group `(index)`.

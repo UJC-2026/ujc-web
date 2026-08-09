@@ -41,7 +41,9 @@ export async function generateMetadata({
     openGraph: {
       title: item.title,
       description: item.description?.slice(0, 155),
-      images: item.images[0] ? [item.images[0]] : undefined,
+      // See the note in events/[id]: a present `images` key suppresses
+      // opengraph-image.tsx even when its value is undefined.
+      ...(item.images[0] ? { images: [item.images[0]] } : {}),
     },
   };
 }
