@@ -10,8 +10,9 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatDateID, formatDateTimeID, relativeTime } from "@/lib/format";
-import { NoteForm, ContentSlotForm } from "../forms";
+import { NoteForm, ContentSlotForm, AcademicReminderForm } from "../forms";
 import type {
+  AcademicReminder,
   Announcement,
   CbtCategory,
   ContentSlot,
@@ -251,9 +252,11 @@ export function MediaPanel({
 export function AkademikPanel({
   categories,
   resourceCount,
+  reminder,
 }: {
   categories: CbtCategory[];
   resourceCount: number;
+  reminder: AcademicReminder;
 }) {
   const totalQuestions = categories.reduce(
     (sum, category) => sum + category.questionCount,
@@ -297,6 +300,11 @@ export function AkademikPanel({
           </p>
         </Card>
       </div>
+
+      <section className="mt-8">
+        <SectionHeading>Reminder akhir pekan</SectionHeading>
+        <AcademicReminderForm reminder={reminder} />
+      </section>
 
       <section className="mt-8">
         <SectionHeading>Bank soal per kategori</SectionHeading>

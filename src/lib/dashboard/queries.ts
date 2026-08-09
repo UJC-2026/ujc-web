@@ -337,13 +337,21 @@ export type CbtCategory = {
   questionCount: number;
 };
 
+/** Overrides for the weekend reminder; null means the built-in wording. */
+export type AcademicReminder = {
+  title: string | null;
+  body: string | null;
+  link: string | null;
+};
+
 export async function getAkademikWorkspace(): Promise<{
   categories: CbtCategory[];
   resourceCount: number;
+  reminder: AcademicReminder;
 }> {
   const supabase = await createClient();
 
-  const [categories, questions, resources] = await Promise.all([
+  const [categories, questions, resources, settings] = await Promise.all([
     supabase
       .from("cbt_test_categories")
       .select("id, name, type, level, duration_minutes, is_published")
@@ -353,6 +361,10 @@ export async function getAkademikWorkspace(): Promise<{
     // category; the question bank is small enough for that to be cheaper.
     supabase.from("cbt_questions").select("category_id"),
     supabase.from("resources").select("id", { count: "exact", head: true }),
+    supabase
+      .from("site_settings")
+      .select("key, value")
+      .like("key", "academic\\_reminder\\_%"),
   ]);
 
   const tally = new Map<string, number>();
@@ -361,12 +373,21 @@ export async function getAkademikWorkspace(): Promise<{
     tally.set(key, (tally.get(key) ?? 0) + 1);
   }
 
+  const setting = new Map(
+    (settings.data ?? []).map((row) => [row.key as string, row.value as string | null]),
+  );
+
   return {
     categories: (categories.data ?? []).map((row) => ({
       ...(row as Omit<CbtCategory, "questionCount">),
       questionCount: tally.get(row.id as string) ?? 0,
     })),
     resourceCount: resources.count ?? 0,
+    reminder: {
+      title: setting.get("academic_reminder_title") ?? null,
+      body: setting.get("academic_reminder_body") ?? null,
+      link: setting.get("academic_reminder_link") ?? null,
+    },
   };
 }
 

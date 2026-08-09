@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getPengurusRoles } from "@/lib/auth/session";
 import {
+  academicReminderSchema,
   boardPostSchema,
   boardReplySchema,
   calendarEntrySchema,
@@ -364,4 +365,50 @@ export async function createCashEntry(
 
   revalidatePath("/dashboard");
   return { success: "Transaksi kas tercatat." };
+}
+
+/**
+ * Rewords the weekend academic reminder (migration 0033).
+ *
+ * RLS is the real gate: migration 0034 grants divisi pendidikan write access
+ * to exactly these three keys, and admin/media keep theirs from 0031.
+ */
+export async function saveAcademicReminder(
+  _prev: DashboardState,
+  formData: FormData,
+): Promise<DashboardState> {
+  const parsed = academicReminderSchema.safeParse({
+    title: formData.get("title"),
+    body: formData.get("body"),
+    link: formData.get("link"),
+  });
+
+  if (!parsed.success) return { error: parsed.error.issues[0].message };
+
+  const { supabase, user } = await currentPengurus();
+  if (!user) return { error: "Sesi kamu sudah berakhir. Coba masuk lagi." };
+
+  const { error } = await supabase.from("site_settings").upsert(
+    [
+      { key: "academic_reminder_title", value: parsed.data.title || null },
+      { key: "academic_reminder_body", value: parsed.data.body || null },
+      { key: "academic_reminder_link", value: parsed.data.link || null },
+    ],
+    { onConflict: "key" },
+  );
+
+  if (error) {
+    return {
+      error: "Gagal disimpan. Hanya divisi pendidikan, media, dan admin yang bisa.",
+    };
+  }
+
+  await supabase.rpc("log_audit", {
+    p_action: "reminder_akademik.ubah",
+    p_target_type: "site_settings",
+    p_metadata: { title: parsed.data.title || null },
+  });
+
+  revalidatePath("/dashboard");
+  return { success: "Teks reminder akhir pekan tersimpan." };
 }

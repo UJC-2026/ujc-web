@@ -163,3 +163,32 @@ export const cashSchema = z.object({
     .trim()
     .refine((value) => !Number.isNaN(Date.parse(value)), "Tanggal tidak valid."),
 });
+
+/**
+ * Wording for the weekend academic reminder (migration 0033).
+ *
+ * Blank fields become null so the notification falls back to its built-in
+ * wording — clearing a box should restore the default, not save an empty
+ * reminder.
+ *
+ * The link must be site-relative. It becomes the notification's target, so an
+ * absolute URL would let whoever holds the Akademik panel point every member's
+ * reminder anywhere they like.
+ *
+ * A leading slash alone is not enough: `//evil.example` is protocol-relative
+ * and a browser sends it straight off-site, and some treat `/\evil.example`
+ * the same way. The second character has to be neither slash nor backslash.
+ */
+const INTERNAL_PATH = /^\/(?![/\\])/;
+
+export const academicReminderSchema = z.object({
+  title: z.string().trim().max(120, "Judul maksimal 120 karakter."),
+  body: z.string().trim().max(300, "Isi maksimal 300 karakter."),
+  link: z
+    .string()
+    .trim()
+    .refine(
+      (value) => value === "" || INTERNAL_PATH.test(value),
+      "Tautan harus jalur internal yang diawali “/”, misalnya /cbt.",
+    ),
+});

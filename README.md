@@ -237,7 +237,12 @@ sehingga dua tab yang terbuka bersamaan tetap menghasilkan satu reminder, dan
 Sabtu–Minggu berbagi satu ember minggu. Notifikasinya ditulis langsung, bukan
 lewat `notify_user()` — fungsi itu berhenti bila targetnya sama dengan
 pemanggil, dan di sini kunjungan anggota sendirilah yang memicu remindernya
-sendiri; pengecekan opt-out-nya diulang, bukan dilewati. Batas jujurnya:
+sendiri; pengecekan opt-out-nya diulang, bukan dilewati. Teksnya diubah dari panel
+Akademik; `0034` memberi divisi pendidikan akses tulis ke tiga kunci reminder
+saja, bukan ke seluruh `site_settings` — tabel yang sama juga menyimpan video
+beranda milik divisi media. Tautannya wajib jalur internal, dan syaratnya
+bukan sekadar diawali `/`: `//situs-lain` itu protocol-relative dan langsung
+membawa pembaca keluar. Batas jujurnya:
 ini hanya menjangkau yang membuka situs di akhir pekan. Menjangkau yang tidak
 membuka adalah tugas Web Push dan email, yang keduanya masih di backlog.
 
@@ -283,9 +288,7 @@ nol; itu memang harus begitu.
 
 Web Push · i18n Bahasa Jepang · unggah dokumen di panel Administrasi ·
 pembersihan berkas lama di Storage saat gambar diganti · notifikasi email ·
-form pengaturan teks reminder akademik untuk divisi pendidikan (teksnya
-sudah bisa diubah lewat `site_settings`, tapi policy tabel itu baru memberi
-akses tulis ke admin & media) · feed otomatis media sosial (butuh API key +
+feed otomatis media sosial (butuh API key +
 app review tiap platform; Creative Hub memakai kurasi tautan sebagai
 gantinya)
 

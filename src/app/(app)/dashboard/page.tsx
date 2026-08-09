@@ -141,9 +141,13 @@ async function renderPanel(
     }
 
     case "akademik": {
-      const { categories, resourceCount } = await getAkademikWorkspace();
+      const { categories, resourceCount, reminder } = await getAkademikWorkspace();
       return (
-        <AkademikPanel categories={categories} resourceCount={resourceCount} />
+        <AkademikPanel
+          categories={categories}
+          resourceCount={resourceCount}
+          reminder={reminder}
+        />
       );
     }
 

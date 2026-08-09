@@ -15,10 +15,15 @@ import {
   createMeetingNote,
   createProgram,
   createTask,
+  saveAcademicReminder,
   type DashboardState,
 } from "@/app/(app)/dashboard/actions";
 import { DIVISI_LABEL, type Divisi } from "@/lib/supabase/types";
-import type { PengurusOption, Program } from "@/lib/dashboard/queries";
+import type {
+  AcademicReminder,
+  PengurusOption,
+  Program,
+} from "@/lib/dashboard/queries";
 
 const selectClass =
   "h-11 w-full rounded-field border border-border bg-surface px-3.5 text-body text-foreground transition-colors hover:border-border-strong focus-visible:border-primary";
@@ -530,6 +535,79 @@ function CashFields({ close, today }: { close: () => void; today: string }) {
       </Field>
 
       <SubmitButton label="Catat transaksi" />
+    </form>
+  );
+}
+
+export function AcademicReminderForm({
+  reminder,
+}: {
+  reminder: AcademicReminder;
+}) {
+  return (
+    <CollapsibleForm
+      openLabel="Ubah teks reminder"
+      title="Reminder akademik akhir pekan"
+    >
+      {(close) => <AcademicReminderFields reminder={reminder} close={close} />}
+    </CollapsibleForm>
+  );
+}
+
+function AcademicReminderFields({
+  reminder,
+  close,
+}: {
+  reminder: AcademicReminder;
+  close: () => void;
+}) {
+  const { error, handle } = useFormAction(saveAcademicReminder, close);
+
+  return (
+    <form action={handle} className="space-y-5">
+      <ErrorNote message={error} />
+
+      <p className="text-caption text-muted-foreground">
+        Dikirim sekali tiap akhir pekan, saat anggota membuka situs pada hari
+        Sabtu atau Minggu waktu Jepang. Kosongkan sebuah kolom untuk memakai
+        teks bawaan.
+      </p>
+
+      <Field label="Judul" htmlFor="reminderTitle">
+        <Input
+          id="reminderTitle"
+          name="title"
+          maxLength={120}
+          defaultValue={reminder.title ?? ""}
+          placeholder="Akhir pekan, waktunya buka e-link"
+        />
+      </Field>
+
+      <Field label="Isi" htmlFor="reminderBody">
+        <Textarea
+          id="reminderBody"
+          name="body"
+          rows={2}
+          maxLength={300}
+          defaultValue={reminder.body ?? ""}
+          placeholder="Cek tugas yang jatuh tempo minggu ini selagi sedang libur shift."
+        />
+      </Field>
+
+      <Field
+        label="Tautan"
+        htmlFor="reminderLink"
+        hint="Opsional, dan harus jalur internal seperti /cbt atau /resources."
+      >
+        <Input
+          id="reminderLink"
+          name="link"
+          defaultValue={reminder.link ?? ""}
+          placeholder="/resources"
+        />
+      </Field>
+
+      <SubmitButton label="Simpan teks reminder" />
     </form>
   );
 }
