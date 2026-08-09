@@ -13,6 +13,7 @@ import {
 import { getCurrentProfile, getPengurusRoles } from "@/lib/auth/session";
 import { isFull, isUpcoming } from "@/lib/events/types";
 import { formatDateTimeID, relativeTime } from "@/lib/format";
+import { JsonLd, eventSchema } from "@/lib/seo/json-ld";
 import { env } from "@/lib/env";
 import { RsvpControls } from "@/components/events/rsvp-controls";
 import { CheckinForm } from "@/components/events/checkin-form";
@@ -91,6 +92,8 @@ export default async function EventDetailPage({
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-12">
+      <JsonLd data={eventSchema(event)} />
+
       <nav aria-label="Remah roti" className="text-caption text-muted-foreground">
         <Link href="/events" className="transition-colors hover:text-primary">
           Kegiatan
