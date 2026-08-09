@@ -227,6 +227,20 @@ anggota adalah pesan ini (`actionError`, SQLSTATE `54000`): ia menyebut angka
 batasnya dan kapan bisa mencoba lagi, sedangkan "coba lagi sebentar lagi" akan
 salah persis di layar tempat mencoba lagi tidak akan berhasil.
 
+**Reminder akhir pekan diklaim saat anggota datang, bukan dijadwalkan.**
+`claim_academic_reminder()` (`0033`) mengikuti pola `close_due_auctions()`:
+tidak ada yang menyala di Postgres ketika sebuah tanggal tiba, jadi
+remindernya dibuat pada kunjungan pertama di hari Sabtu/Minggu waktu Jepang —
+yang untuk notifikasi in-app memang satu-satunya saat ia bisa dibaca.
+Idempotensinya dari primary key `(user_id, week_start)`, bukan baca-lalu-tulis,
+sehingga dua tab yang terbuka bersamaan tetap menghasilkan satu reminder, dan
+Sabtu–Minggu berbagi satu ember minggu. Notifikasinya ditulis langsung, bukan
+lewat `notify_user()` — fungsi itu berhenti bila targetnya sama dengan
+pemanggil, dan di sini kunjungan anggota sendirilah yang memicu remindernya
+sendiri; pengecekan opt-out-nya diulang, bukan dilewati. Batas jujurnya:
+ini hanya menjangkau yang membuka situs di akhir pekan. Menjangkau yang tidak
+membuka adalah tugas Web Push dan email, yang keduanya masih di backlog.
+
 **Kartu OG digambar, tautan rapatnya tidak.** `ImageResponse` dari `next/og`
 menggambar kartu bertema navy-emas untuk thread, event, dan barang — hanya
 flexbox yang didukung Satori, dan tanpa font kustom supaya bundelnya tetap
@@ -269,7 +283,9 @@ nol; itu memang harus begitu.
 
 Web Push · i18n Bahasa Jepang · unggah dokumen di panel Administrasi ·
 pembersihan berkas lama di Storage saat gambar diganti · notifikasi email ·
-reminder akademik akhir pekan · feed otomatis media sosial (butuh API key +
+form pengaturan teks reminder akademik untuk divisi pendidikan (teksnya
+sudah bisa diubah lewat `site_settings`, tapi policy tabel itu baru memberi
+akses tulis ke admin & media) · feed otomatis media sosial (butuh API key +
 app review tiap platform; Creative Hub memakai kurasi tautan sebagai
 gantinya)
 

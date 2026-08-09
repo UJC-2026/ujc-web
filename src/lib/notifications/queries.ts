@@ -22,8 +22,31 @@ export async function getNotifications(): Promise<Notification[]> {
   return (data as Notification[] | null) ?? [];
 }
 
+/**
+ * Raises this weekend's academic reminder if it is due and not yet claimed.
+ *
+ * Called from the bell rather than from the dashboard because this is the one
+ * place every signed-in member passes on every page, so the badge is already
+ * counting it the moment they arrive. On weekdays the function returns after a
+ * single comparison without touching a table.
+ *
+ * Failure here must never take a page down: the cost is a reminder that waits
+ * for the next visit.
+ */
+async function claimAcademicReminder(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+): Promise<void> {
+  const { error } = await supabase.rpc("claim_academic_reminder");
+  if (error) {
+    console.error("claim_academic_reminder failed", error.message);
+  }
+}
+
 export async function getUnreadCount(): Promise<number> {
   const supabase = await createClient();
+
+  await claimAcademicReminder(supabase);
+
   const { count } = await supabase
     .from("notifications")
     .select("id", { count: "exact", head: true })
@@ -44,6 +67,7 @@ export const NOTIFICATION_TYPES = {
   lelang_menang: "Kamu memenangkan lelang",
   lelang_selesai: "Lelang yang kamu buka ditutup",
   lencana_baru: "Lencana baru terkumpul",
+  reminder_akademik: "Reminder akademik akhir pekan",
 } as const;
 
 export type NotificationType = keyof typeof NOTIFICATION_TYPES;
