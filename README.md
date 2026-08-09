@@ -207,6 +207,25 @@ karena itu cukup menghapus satu baris di `auth.users`. Admin terakhir ditolak
 — himpunan admin yang kosong mengunci seluruh alat pengurus dan tidak bisa
 diperbaiki dari dalam aplikasi.
 
+**Batas laju ditegakkan trigger, dan pesannya menembus ke pengguna.** Posting,
+donasi, dan memulai tes dibatasi oleh `enforce_rate_limit` (`0032`) — di
+database, karena tabel-tabel itu bisa dijangkau langsung lewat PostgREST.
+Hitungannya memakai tabel jejak tersendiri, bukan baris kontennya: menghapus
+thread sendiri itu boleh, dan menghitung baris berarti kuota bisa dikembalikan
+dengan menghapus. Angkanya berupa data di tabel `rate_limits`, jadi bisa
+digeser tanpa migrasi. Satu-satunya pesan Postgres yang boleh sampai ke layar
+anggota adalah pesan ini (`actionError`, SQLSTATE `54000`): ia menyebut angka
+batasnya dan kapan bisa mencoba lagi, sedangkan "coba lagi sebentar lagi" akan
+salah persis di layar tempat mencoba lagi tidak akan berhasil.
+
+**Kartu OG digambar, tautan rapatnya tidak.** `ImageResponse` dari `next/og`
+menggambar kartu bertema navy-emas untuk thread, event, dan barang — hanya
+flexbox yang didukung Satori, dan tanpa font kustom supaya bundelnya tetap
+jauh di bawah 500KB. Sebaliknya, `meeting_link` sengaja tidak masuk JSON-LD
+event. Kolomnya memang publik, tapi structured data ditulis untuk crawler, dan
+tautan Zoom yang mendarat di indeks pencarian adalah ruang yang bisa dimasuki
+siapa saja; `VirtualLocation` menunjuk ke halaman event.
+
 ## Pengujian
 
 Tiap modul diverifikasi terhadap instance Supabase lokal yang sungguhan, bukan
@@ -216,6 +235,12 @@ lain `GRANT` tabel yang tidak pernah diberikan (seluruh query gagal), policy
 insert yang membiarkan anggota melewati moderasi, papan internal yang bisa
 dimasuki anggota mana pun, dan notifikasi yang selalu ditolak sehingga tidak
 pernah ada satu pun yang dibuat.
+
+`pnpm test` menjalankan unit test Vitest atas logika murni yang menentukan apa
+yang dilihat anggota: pencarian & penyaringan pengurus, bentuk structured data,
+dan pesan error mana yang aman ditampilkan. Cakupannya sengaja sempit — RLS,
+trigger, dan Server Component async tidak bisa dijangkau dari sana, dan itu
+memang bagian yang diverifikasi terhadap Supabase lokal seperti di atas.
 
 Verifikasi UI dijalankan terhadap `next build && next start`, bukan `next dev`.
 Di mesin pengembangan yang dipakai, HMR WebSocket dev server gagal handshake
