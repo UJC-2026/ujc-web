@@ -9,9 +9,14 @@ import { Button } from "@/components/ui/button";
 export function MemberSearch({
   basePath,
   initial,
+  placeholder = "Cari nama atau NIM…",
+  label = "Cari anggota",
 }: {
   basePath: string;
   initial: string;
+  /** Overridden on /structure, where the same box also matches divisi and kota. */
+  placeholder?: string;
+  label?: string;
 }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -39,8 +44,8 @@ export function MemberSearch({
       <Input
         value={term}
         onChange={(event) => setTerm(event.target.value)}
-        placeholder="Cari nama atau NIM…"
-        aria-label="Cari anggota"
+        placeholder={placeholder}
+        aria-label={label}
         className="pl-10"
       />
       <Button type="submit" className="sr-only">

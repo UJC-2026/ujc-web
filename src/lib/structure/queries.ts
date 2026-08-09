@@ -164,6 +164,30 @@ export async function getPosition(id: string): Promise<{
   };
 }
 
+/**
+ * Narrows the tree to one branch. Returns an empty tree for an unknown id
+ * rather than silently falling back to everything — a filter chip that
+ * quietly stops filtering is worse than one that visibly matches nothing.
+ */
+export function scopeToDivision(
+  tree: OrgPosition[],
+  positionId?: string,
+): OrgPosition[] {
+  if (!positionId) return tree;
+
+  const find = (nodes: OrgPosition[]): OrgPosition | null => {
+    for (const node of nodes) {
+      if (node.id === positionId) return node;
+      const hit = find(node.children);
+      if (hit) return hit;
+    }
+    return null;
+  };
+
+  const node = find(tree);
+  return node ? [node] : [];
+}
+
 /** Flattened search across a period, for the "cari pengurus" box. */
 export function searchMembers(
   tree: OrgPosition[],
