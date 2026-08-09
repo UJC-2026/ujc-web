@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { actionError } from "@/lib/rate-limit";
 import { sanitizeRichText } from "@/lib/sanitize";
 import {
   parseTags,
@@ -74,7 +75,9 @@ export async function createThread(
     .single();
 
   if (error || !thread) {
-    return { error: "Thread gagal diposting. Coba lagi sebentar lagi." };
+    return {
+      error: actionError(error, "Thread gagal diposting. Coba lagi sebentar lagi."),
+    };
   }
 
   await flagIfSuspicious(
@@ -142,7 +145,9 @@ export async function createReply(
     .single();
 
   if (error || !reply) {
-    return { error: "Balasan gagal dikirim. Coba lagi sebentar lagi." };
+    return {
+      error: actionError(error, "Balasan gagal dikirim. Coba lagi sebentar lagi."),
+    };
   }
 
   await flagIfSuspicious(supabase, "reply", reply.id, content, user.id);

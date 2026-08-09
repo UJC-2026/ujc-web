@@ -128,14 +128,15 @@ export default async function TestPage({ params, searchParams }: PageProps) {
         </div>
       </dl>
 
-      {error === "mulai" && (
+      {(error === "mulai" || error === "batas") && (
         <p
           role="alert"
           className="mt-6 flex items-start gap-2 rounded-field border border-danger/30 bg-danger/8 px-3.5 py-3 text-caption text-danger"
         >
           <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
-          Tes gagal dimulai. Mungkin bank soalnya sedang kosong — coba lagi
-          nanti.
+          {error === "batas"
+            ? "Kamu memulai terlalu banyak tes dalam waktu singkat. Istirahat sebentar, lalu coba lagi."
+            : "Tes gagal dimulai. Mungkin bank soalnya sedang kosong — coba lagi nanti."}
         </p>
       )}
 

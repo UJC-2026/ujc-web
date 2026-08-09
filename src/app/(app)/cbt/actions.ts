@@ -20,6 +20,10 @@ export async function startAttempt(formData: FormData): Promise<void> {
     p_category: categoryId,
   });
 
+  // This flow signals failure through the URL, so it carries a token rather
+  // than the database's sentence — putting server text in a query string means
+  // rendering whatever else someone chooses to put there.
+  if (error?.code === "54000") redirect(`/cbt/${categoryId}?error=batas`);
   if (error || !data) redirect(`/cbt/${categoryId}?error=mulai`);
 
   redirect(`/cbt/${categoryId}?attempt=${data}`);

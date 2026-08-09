@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { actionError } from "@/lib/rate-limit";
 
 export type MarketState = { error?: string; success?: string };
 
@@ -110,7 +111,9 @@ export async function createItem(
     .single();
 
   if (error || !item) {
-    return { error: "Barang gagal diposting. Coba lagi sebentar lagi." };
+    return {
+      error: actionError(error, "Barang gagal diposting. Coba lagi sebentar lagi."),
+    };
   }
 
   revalidatePath("/marketplace");

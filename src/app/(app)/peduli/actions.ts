@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { actionError } from "@/lib/rate-limit";
 
 export type PeduliState = { error?: string; success?: string };
 
@@ -215,7 +216,9 @@ export async function donate(
     is_anonymous: parsed.data.isAnonymous === "true",
   });
 
-  if (error) return { error: "Donasi gagal dicatat. Coba lagi." };
+  if (error) {
+    return { error: actionError(error, "Donasi gagal dicatat. Coba lagi.") };
+  }
 
   revalidatePath(`/peduli/${parsed.data.caseId}`);
   revalidatePath("/peduli");
