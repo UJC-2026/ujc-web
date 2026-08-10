@@ -54,3 +54,51 @@ export function MemberCard({ member }: { member: MemberCardData }) {
   );
 }
 
+
+/**
+ * The same member as one compact line, for the list view.
+ *
+ * Keeps what a scanner needs — who, where, what badges — and drops the bio
+ * and the study line, which is the whole point of asking for a list: more
+ * people on screen at once.
+ */
+export function MemberRow({ member }: { member: MemberCardData }) {
+  return (
+    <article className="relative flex items-center gap-3.5 rounded-card border border-border bg-surface px-4 py-3 transition-colors duration-200 hover:border-accent">
+      <Avatar src={member.avatar_url} name={member.full_name} size="sm" />
+
+      <div className="min-w-0 flex-1">
+        <h3 className="truncate text-body font-medium text-foreground">
+          <Link href={`/members/${member.id}`}>
+            <span className="absolute inset-0" aria-hidden />
+            {member.full_name}
+          </Link>
+        </h3>
+        <p className="truncate text-caption text-muted-foreground">
+          {[
+            [member.city, member.prefecture].filter(Boolean).join(", "),
+            member.angkatan && `Angkatan ${member.angkatan}`,
+          ]
+            .filter(Boolean)
+            .join(" · ") || "Domisili belum diisi"}
+        </p>
+      </div>
+
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+        {member.role !== "member" && <RoleBadge role={member.role} />}
+        {member.is_verified && (
+          <Badge variant="success">
+            <ShieldCheck aria-hidden />
+            <span className="sr-only sm:not-sr-only">Terverifikasi</span>
+          </Badge>
+        )}
+        {member.isMentor && (
+          <Badge variant="accent">
+            <HandHeart aria-hidden />
+            <span className="sr-only sm:not-sr-only">Mentor</span>
+          </Badge>
+        )}
+      </div>
+    </article>
+  );
+}

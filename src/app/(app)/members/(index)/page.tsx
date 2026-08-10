@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SearchX, Users } from "lucide-react";
+import { LayoutGrid, List, SearchX, Users } from "lucide-react";
 import {
   getMemberFilters,
   getMemberStats,
@@ -10,7 +10,7 @@ import {
   MEMBER_SORTS,
   type MemberSort,
 } from "@/lib/members/queries";
-import { MemberCard } from "@/components/members/member-card";
+import { MemberCard, MemberRow } from "@/components/members/member-card";
 import { MemberSearch } from "@/components/members/member-search";
 import { Pagination } from "@/components/forum/pagination";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,7 @@ type PageProps = {
     angkatan?: string;
     sort?: string;
     page?: string;
+    tampilan?: string;
   }>;
 };
 
@@ -38,6 +39,9 @@ export default async function MembersPage({ searchParams }: PageProps) {
   const params = await searchParams;
 
   const sort: MemberSort = isMemberSort(params.sort) ? params.sort : "terbaru";
+  // Grid is the default; anything unrecognised falls back to it rather than
+  // rendering nothing.
+  const asList = params.tampilan === "list";
   const page = Math.max(1, Number(params.page) || 1);
 
   const [{ members, total }, filters, stats] = await Promise.all([
@@ -85,16 +89,35 @@ export default async function MembersPage({ searchParams }: PageProps) {
         <MemberSearch basePath="/members" initial={params.q ?? ""} />
       </div>
 
-      <div
-        role="group"
-        aria-label="Urutkan"
-        className="mt-4 flex flex-wrap gap-1.5"
-      >
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <div role="group" aria-label="Urutkan" className="flex flex-wrap gap-1.5">
         {(Object.keys(MEMBER_SORTS) as MemberSort[]).map((key) => (
           <Link key={key} href={withParams({ sort: key })} className={chip(sort === key)}>
             {MEMBER_SORTS[key]}
           </Link>
-        ))}
+          ))}
+        </div>
+
+        <div role="group" aria-label="Tampilan" className="flex gap-1.5">
+          <Link
+            href={withParams({ tampilan: undefined })}
+            aria-current={!asList}
+            className={chip(!asList)}
+            title="Tampilan kartu"
+          >
+            <LayoutGrid className="size-4" aria-hidden />
+            <span className="sr-only">Tampilan kartu</span>
+          </Link>
+          <Link
+            href={withParams({ tampilan: "list" })}
+            aria-current={asList}
+            className={chip(asList)}
+            title="Tampilan daftar"
+          >
+            <List className="size-4" aria-hidden />
+            <span className="sr-only">Tampilan daftar</span>
+          </Link>
+        </div>
       </div>
 
       {filters.prefectures.length > 0 && (
@@ -165,10 +188,20 @@ export default async function MembersPage({ searchParams }: PageProps) {
         </div>
       ) : (
         <>
-          <RevealGroup className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <RevealGroup
+            className={
+              asList
+                ? "mt-6 space-y-2.5"
+                : "mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+            }
+          >
             {members.map((member) => (
               <RevealItem key={member.id}>
-                <MemberCard member={member} />
+                {asList ? (
+                  <MemberRow member={member} />
+                ) : (
+                  <MemberCard member={member} />
+                )}
               </RevealItem>
             ))}
           </RevealGroup>
@@ -181,6 +214,7 @@ export default async function MembersPage({ searchParams }: PageProps) {
                 prefektur: params.prefektur,
                 angkatan: params.angkatan,
                 sort,
+                tampilan: params.tampilan,
               }}
               page={page}
               totalPages={Math.ceil(total / MEMBERS_PER_PAGE)}
