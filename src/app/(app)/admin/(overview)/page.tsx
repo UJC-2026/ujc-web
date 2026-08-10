@@ -7,7 +7,12 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
-import { getAdminStats, getPrefectureBreakdown } from "@/lib/admin/queries";
+import {
+  getAdminStats,
+  getCommunityTrend,
+  getPrefectureBreakdown,
+} from "@/lib/admin/queries";
+import { TrendChart } from "@/components/admin/trend-chart";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -39,9 +44,10 @@ function StatTile({
 }
 
 export default async function AdminOverviewPage() {
-  const [stats, prefectures] = await Promise.all([
+  const [stats, prefectures, trend] = await Promise.all([
     getAdminStats(),
     getPrefectureBreakdown(),
+    getCommunityTrend(),
   ]);
 
   const needsAttention = stats.pendingReports + stats.newFlags;
@@ -92,6 +98,43 @@ export default async function AdminOverviewPage() {
             hint={`${stats.pendingReports} laporan · ${stats.newFlags} tanda otomatis`}
           />
         </div>
+      </section>
+
+      <section>
+        <h2 className="text-h3 text-foreground">Tren 12 bulan terakhir</h2>
+        <p className="mt-2 text-body text-muted-foreground">
+          Ke mana komunitas ini bergerak — bukan hanya di mana ia berada
+          sekarang.
+        </p>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <TrendChart title="Anggota baru" points={trend.members} />
+          <TrendChart
+            title="Aktivitas forum"
+            points={trend.forum}
+            hint="Thread dan balasan digabung."
+          />
+          <TrendChart
+            title="Percobaan CBT"
+            points={trend.cbt}
+            hint={
+              trend.cbtAverage === null
+                ? "Belum ada tes yang dikumpulkan."
+                : `Rata-rata skor ${trend.cbtAverage}%.`
+            }
+          />
+        </div>
+
+        <p className="mt-4 text-caption text-muted-foreground">
+          UJC Peduli: {trend.peduli.cases.toLocaleString("id-ID")} pengajuan,
+          terkumpul{" "}
+          {new Intl.NumberFormat("ja-JP", {
+            style: "currency",
+            currency: "JPY",
+            maximumFractionDigits: 0,
+          }).format(trend.peduli.collected)}
+          .
+        </p>
       </section>
 
       <section>

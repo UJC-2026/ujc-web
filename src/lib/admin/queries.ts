@@ -353,3 +353,101 @@ export async function getAuditLog(limit = 100): Promise<AuditEntry[]> {
 
   return (data as AuditEntry[] | null) ?? [];
 }
+
+export type TrendPoint = { label: string; value: number };
+
+export type CommunityTrend = {
+  members: TrendPoint[];
+  forum: TrendPoint[];
+  cbt: TrendPoint[];
+  /** Mean CBT score as a percentage, or null when nobody has finished one. */
+  cbtAverage: number | null;
+  peduli: { collected: number; cases: number };
+};
+
+const MONTH_LABEL = new Intl.DateTimeFormat("id-ID", { month: "short" });
+
+/** The last twelve month buckets, oldest first, so an empty month still shows. */
+function emptyMonths(): { key: string; label: string }[] {
+  const now = new Date();
+  return Array.from({ length: 12 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (11 - i), 1);
+    return {
+      key: `${d.getFullYear()}-${d.getMonth()}`,
+      label: MONTH_LABEL.format(d),
+    };
+  });
+}
+
+function bucket(months: { key: string; label: string }[], dates: unknown[]) {
+  const counts = new Map(months.map((m) => [m.key, 0]));
+  for (const value of dates) {
+    if (typeof value !== "string") continue;
+    const d = new Date(value);
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    if (counts.has(key)) counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return months.map((m) => ({ label: m.label, value: counts.get(m.key) ?? 0 }));
+}
+
+/**
+ * Twelve months of community activity for the admin overview.
+ *
+ * Bucketed in JS rather than with a SQL `date_trunc` group-by: these tables
+ * are small, this is one round trip per series instead of a view to maintain,
+ * and an empty month has to appear as a zero column either way — a group-by
+ * simply omits it.
+ */
+export async function getCommunityTrend(): Promise<CommunityTrend> {
+  const supabase = await createClient();
+  const months = emptyMonths();
+  const from = new Date();
+  from.setMonth(from.getMonth() - 11, 1);
+  const since = new Date(from.getFullYear(), from.getMonth(), 1).toISOString();
+
+  const [profiles, threads, replies, attempts, peduli] = await Promise.all([
+    supabase.from("profiles").select("created_at").gte("created_at", since),
+    supabase.from("forum_threads").select("created_at").gte("created_at", since),
+    supabase.from("forum_replies").select("created_at").gte("created_at", since),
+    supabase
+      .from("cbt_attempts")
+      .select("started_at, score, total_questions, finished_at")
+      .gte("started_at", since),
+    supabase.from("peduli_cases").select("collected_amount"),
+  ]);
+
+  const forumDates = [
+    ...(threads.data ?? []).map((r) => r.created_at),
+    ...(replies.data ?? []).map((r) => r.created_at),
+  ];
+
+  const finished = (attempts.data ?? []).filter(
+    (r) => r.finished_at && Number(r.total_questions) > 0,
+  );
+
+  const cbtAverage =
+    finished.length === 0
+      ? null
+      : Math.round(
+          (finished.reduce(
+            (sum, r) => sum + Number(r.score) / Number(r.total_questions),
+            0,
+          ) /
+            finished.length) *
+            100,
+        );
+
+  return {
+    members: bucket(months, (profiles.data ?? []).map((r) => r.created_at)),
+    forum: bucket(months, forumDates),
+    cbt: bucket(months, (attempts.data ?? []).map((r) => r.started_at)),
+    cbtAverage,
+    peduli: {
+      collected: (peduli.data ?? []).reduce(
+        (sum, r) => sum + Number(r.collected_amount ?? 0),
+        0,
+      ),
+      cases: (peduli.data ?? []).length,
+    },
+  };
+}
