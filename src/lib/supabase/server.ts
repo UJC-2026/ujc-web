@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { env } from "@/lib/env";
+import { loggingFetch } from "./logging-fetch";
 
 export async function createClient() {
   const cookieStore = await cookies();
@@ -9,6 +10,9 @@ export async function createClient() {
     env.NEXT_PUBLIC_SUPABASE_URL,
     env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
+      // Queries here read `data` and drop `error` almost everywhere, so this
+      // is the one place a failed request can be noticed at all.
+      global: { fetch: loggingFetch },
       cookies: {
         getAll: () => cookieStore.getAll(),
         setAll: (cookiesToSet) => {

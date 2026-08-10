@@ -227,6 +227,26 @@ anggota adalah pesan ini (`actionError`, SQLSTATE `54000`): ia menyebut angka
 batasnya dan kapan bisa mencoba lagi, sedangkan "coba lagi sebentar lagi" akan
 salah persis di layar tempat mencoba lagi tidak akan berhasil.
 
+**Kegagalan database harus terdengar, karena setiap halaman menelannya.**
+Hampir semua query di sini membaca `data` dan membuang `error`, lalu jatuh ke
+`?? []`. Itu disengaja: satu panel rusak tidak boleh menjatuhkan halaman. Tapi
+akibatnya database yang tidak tersambung — atau diarahkan ke project yang salah
+— tampil sebagai "belum ada isi" di semua halaman, dengan HTTP 200. Deployment
+produksi yang tersambung ke Supabase project milik aplikasi lain terlihat
+sehat sempurna dari luar padahal tidak satu tabel pun ada.
+
+Dua penawarnya, keduanya tidak mengubah perilaku halaman. `loggingFetch`
+membungkus fetch milik klien Supabase, jadi setiap respons gagal tercatat
+lengkap dengan pesan PostgREST-nya — satu titik, bukan 89 pemanggilan.
+Dan `/api/health` adalah satu-satunya rute yang menolak berpura-pura: ia
+menjawab 503 beserta penyebabnya. Arahkan monitor ke sana.
+
+Catatan yang menghabiskan waktu: versi pertama health check memakai
+`head: true`. Respons HEAD tidak punya body, dan supabase-js membiarkan
+`error` tetap null kalau tidak ada yang bisa diurai — sehingga ia melaporkan
+database sehat sementara PostgREST menjawab 404 untuk setiap permintaan.
+Pakai `select` biasa.
+
 **Gambar lama dihapus oleh pemiliknya sendiri, bukan oleh penjadwal.**
 Mengganti avatar dulu meninggalkan berkas lamanya di bucket selamanya — bukan
 cuma tagihan penyimpanan, tapi gambar yang dikira sudah dihapus tetap bisa
