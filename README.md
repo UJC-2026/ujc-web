@@ -227,6 +227,23 @@ anggota adalah pesan ini (`actionError`, SQLSTATE `54000`): ia menyebut angka
 batasnya dan kapan bisa mencoba lagi, sedangkan "coba lagi sebentar lagi" akan
 salah persis di layar tempat mencoba lagi tidak akan berhasil.
 
+**"Profil kosong" bukan berarti "belum login".** `getCurrentProfile()` dulu
+mengembalikan `null` untuk tiga hal sekaligus: tidak ada sesi, barisnya tidak
+ada, dan query-nya gagal. `requireProfile()` menanggapi ketiganya dengan
+`redirect("/login")` — dan proxy melempar siapa pun yang sudah terautentikasi
+dari `/login` kembali ke `/dashboard`. Hasilnya lingkaran: login berhasil,
+lalu browser memantul sampai menyerah pada halaman kosong tanpa apa pun yang
+bisa diklik. Terlihat persis seperti tombol login yang rusak, padahal
+penyebabnya `profiles` tidak terbaca.
+
+Sekarang ketiganya dibedakan. `getCurrentProfile()` tetap toleran karena
+dibaca header di **setiap** halaman — versi yang melempar mengubah gangguan
+database jadi 500 di beranda untuk setiap anggota yang sedang login, dan itu
+hari yang lebih buruk daripada header yang tampil seperti belum masuk.
+`requireProfile()` yang tegas: tidak ada sesi tetap ke `/login` (aman, tidak
+memantul), query gagal dan baris hilang sama-sama berhenti dengan pesan yang
+menjelaskan mana yang rusak.
+
 **Kegagalan database harus terdengar, karena setiap halaman menelannya.**
 Hampir semua query di sini membaca `data` dan membuang `error`, lalu jatuh ke
 `?? []`. Itu disengaja: satu panel rusak tidak boleh menjatuhkan halaman. Tapi
