@@ -222,7 +222,7 @@ export default async function ItemPage({ params }: PageProps) {
                   Hubungi penjual
                 </Button>
               </form>
-              <ReportDialog contentType="thread" contentId={item.id} />
+              <ReportDialog contentType="barang" contentId={item.id} />
             </div>
           )}
         </div>

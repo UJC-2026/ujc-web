@@ -9,7 +9,7 @@ export type AdminState = { error?: string; success?: string };
 const resolveSchema = z.object({
   kind: z.enum(["report", "flag"]),
   id: z.uuid(),
-  contentType: z.enum(["thread", "reply"]),
+  contentType: z.enum(["thread", "reply", "barang"]),
   contentId: z.uuid(),
   decision: z.enum(["tolak", "hapus"]),
 });
@@ -37,8 +37,20 @@ export async function resolveQueueItem(
   const supabase = await createClient();
 
   if (decision === "hapus") {
-    const table = contentType === "thread" ? "forum_threads" : "forum_replies";
-    const { error } = await supabase.from(table).delete().eq("id", contentId);
+    // A map, not a ternary. The two-branch version silently treated every
+    // non-thread report as a reply, so a reported marketplace item was
+    // deleted from forum_replies — nought rows, and the listing stayed up
+    // while the report was marked resolved.
+    const TABLES = {
+      thread: "forum_threads",
+      reply: "forum_replies",
+      barang: "marketplace_items",
+    } as const;
+
+    const { error } = await supabase
+      .from(TABLES[contentType])
+      .delete()
+      .eq("id", contentId);
 
     if (error) {
       return { error: "Konten gagal dihapus. Coba lagi sebentar lagi." };

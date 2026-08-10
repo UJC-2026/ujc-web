@@ -22,7 +22,7 @@ export function ReportDialog({
   contentType,
   contentId,
 }: {
-  contentType: "thread" | "reply";
+  contentType: "thread" | "reply" | "barang";
   contentId: string;
 }) {
   const [open, setOpen] = useState(false);

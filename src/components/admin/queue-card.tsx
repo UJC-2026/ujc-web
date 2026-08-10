@@ -82,7 +82,11 @@ export function QueueCard({
           </Badge>
         )}
         <Badge variant="outline">
-          {item.contentType === "thread" ? "Thread" : "Balasan"}
+          {item.contentType === "thread"
+            ? "Thread"
+            : item.contentType === "barang"
+              ? "Barang"
+              : "Balasan"}
         </Badge>
         <span className="text-caption text-muted-foreground">
           {relativeTime(item.createdAt)}

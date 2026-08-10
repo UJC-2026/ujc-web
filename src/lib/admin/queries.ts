@@ -286,6 +286,24 @@ export async function getQueueTargets(
     }
   }
 
+  const itemIds = items
+    .filter((i) => i.contentType === "barang")
+    .map((i) => i.contentId);
+
+  if (itemIds.length > 0) {
+    const { data } = await supabase
+      .from("marketplace_items")
+      .select("id, title")
+      .in("id", itemIds);
+
+    for (const row of data ?? []) {
+      targets[row.id as string] = {
+        title: row.title as string,
+        href: `/marketplace/${row.id}`,
+      };
+    }
+  }
+
   return targets;
 }
 

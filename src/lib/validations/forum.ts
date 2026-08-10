@@ -35,7 +35,7 @@ export const replySchema = z.object({
 });
 
 export const reportSchema = z.object({
-  contentType: z.enum(["thread", "reply"]),
+  contentType: z.enum(["thread", "reply", "barang"]),
   contentId: z.uuid(),
   reason: z
     .string()
