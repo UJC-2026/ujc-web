@@ -20,8 +20,8 @@ Di [supabase.com](https://supabase.com) → **New project**.
 
 ## 2. Jalankan migrasi
 
-Ada **25 migrasi** yang harus dijalankan **berurutan**. Jangan tempel satu per
-satu ke SQL Editor — 25 berkas terlalu mudah tertukar urutannya, dan urutannya
+Ada **35 migrasi** yang harus dijalankan **berurutan**. Jangan tempel satu per
+satu ke SQL Editor — 35 berkas terlalu mudah tertukar urutannya, dan urutannya
 mengikat (migrasi belakangan mengubah tabel dan policy yang dibuat sebelumnya).
 
 Dari folder project, di terminal:
@@ -32,7 +32,10 @@ npx supabase link --project-ref <project-ref>   # ref ada di URL dashboard
 npx supabase db push
 ```
 
-`db push` menjalankan `supabase/migrations/` berurutan dari 0001 sampai 0025.
+`db push` menjalankan `supabase/migrations/` berurutan dari 0001 sampai 0035.
+
+Kalau `link` menolak karena project sudah tertaut ke ref lain, hapus dulu
+`supabase/.temp/` lalu ulangi — itu menyimpan tautan sebelumnya.
 
 > ⚠️ **`supabase/seed.sql` tidak boleh masuk produksi.** Isinya empat akun uji
 > dengan kata sandi `password123`, salah satunya **admin**. `db push` tidak
@@ -43,8 +46,17 @@ npx supabase db push
 Bucket Storage (`avatars`, `gallery`, `documents`, dll.) dibuat otomatis oleh
 migrasi `0019` — tidak perlu dibuat manual.
 
-**Cek berhasil:** di dashboard → Table Editor harusnya ada ~60 tabel, dan
-Storage → Buckets berisi 5 bucket.
+**Cek berhasil.** Angka di bawah ini diambil dari database kosong yang baru
+dijalankan seluruh migrasinya, jadi bisa dipakai apa adanya:
+
+| Yang dicek | Harus bernilai |
+| --- | --- |
+| Table Editor | **70** tabel |
+| Storage → Buckets | **6**: `avatars`, `blog`, `documents`, `gallery`, `marketplace`, `partners` |
+| `select max(version) from supabase_migrations.schema_migrations` | `0035` |
+
+Kalau jumlah tabelnya jauh lebih kecil, migrasinya berhenti di tengah — periksa
+keluaran `db push`, jangan lanjut ke langkah berikutnya.
 
 ---
 
